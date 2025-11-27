@@ -8,7 +8,6 @@ import PlayerBar from "@/widgets/player-bar/ui/PlayerBar";
 export default function FavoritesPage() {
   const router = useRouter();
 
-  // 임시 즐겨찾기 데이터
   const favorites = [
     { id: 1, title: "Golden", artist: "정국", img: "/images/golden.png" },
     { id: 2, title: "Run Run Run", artist: "선우정아", img: "/images/runrun.png" },
@@ -19,67 +18,70 @@ export default function FavoritesPage() {
   ];
 
   return (
-    <div
-      className="relative w-full min-h-screen flex flex-col items-center bg-cover bg-center"
-      style={{ backgroundImage: `url(/images/weather-clear.jpg)` }}
-    >
-      {/* 🔹 상단 헤더 (메인 페이지와 동일 높이) */}
+    <div className="relative w-full min-h-screen flex flex-col items-center bg-white">
+      {/* [필수 기능: 컴포넌트 단위 UI] 상단 헤더 */}
       <WeatherHeader />
 
-      {/* 🔹 본문 */}
+      {/* 본문 */}
       <main className="flex-1 w-full flex">
-        {/* ✅ 왼쪽 프로필 영역 */}
-        <aside className="relative w-1/4 border-r border-white/30 flex flex-col items-center backdrop-blur-sm bg-white/10 pt-12">
-          {/* 프로필 사진 */}
+        {/* [필수 기능: 컴포넌트 단위 UI & Props/State] 왼쪽 프로필 영역 */}
+        <aside className="relative w-1/4 border-r border-gray-300 flex flex-col items-center pt-16">
           <img
             src="/images/hedgehog.png"
             alt="profile"
             className="w-40 h-40 rounded-full object-cover border-4 border-blue-100 shadow-md"
           />
 
-          {/* 이름 / 상태 */}
-          <div className="mt-5 text-center text-white drop-shadow">
+          {/* [필수 기능: UI/UX] 사용자 이름/소개 표시 */}
+          <div className="mt-5 text-center text-black">
             <p className="text-lg font-medium">따봉도치야</p>
             <p className="text-sm opacity-80">고마워</p>
           </div>
 
-          {/* ⚙ 설정 버튼 (왼쪽 아래 고정) */}
+          {/* [필수 기능: 이벤트 핸들링 / 라우팅] 설정 페이지 이동 */}
           <button
             onClick={() => router.push("/settings")}
-            className="absolute bottom-6 left-6 text-sm px-4 py-1.5 border rounded-lg text-white/90 hover:bg-white/10 transition-all"
+            className="absolute bottom-20 left-6 text-sm px-4 py-1.5 border rounded-lg text-black/90 hover:bg-gray-100 transition-all"
           >
             ⚙ 설정
           </button>
         </aside>
 
-        {/* ✅ 오른쪽 즐겨찾기 카드 그리드 */}
+        {/* [필수 기능: 리스트 렌더링] 즐겨찾기 카드 그리드 */}
         <section className="flex-1 flex flex-col items-center justify-start py-10">
-          <h2 className="text-5xl font-light text-white mb-10 drop-shadow">
+          {/* [필수 기능: UI/UX] 섹션 제목 */}
+          <h2 className="text-5xl font-light text-black mb-10">
             Favorite
           </h2>
 
+          {/* [필수 기능: 리스트 렌더링 / CRUD] 즐겨찾기 목록 반복 출력 */}
           <div className="grid grid-cols-3 gap-10">
             {favorites.map((track) => (
               <div
                 key={track.id}
-                className="w-60 h-72 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg flex flex-col items-center p-4 hover:bg-white/20 transition"
+                className="w-60 h-72 bg-gray-100 rounded-2xl shadow-lg flex flex-col items-center p-4 hover:bg-gray-200 transition"
               >
+                {/* [필수 기능: UI/UX] 곡 이미지 */}
                 <img
                   src={track.img}
                   alt={track.title}
-                  className="w-40 h-40 object-cover rounded-xl border-2 border-white/30 shadow"
+                  className="w-40 h-40 object-cover rounded-xl border-2 border-gray-300 shadow"
                 />
-                <p className="text-white text-lg font-semibold mt-4">
+                {/* [필수 기능: UI/UX] 곡 제목/아티스트 표시 */}
+                <p className="text-black text-lg font-semibold mt-4">
                   {track.title}
                 </p>
-                <p className="text-white/80 text-sm mt-1">{track.artist}</p>
+                <p className="text-black/80 text-sm mt-1">{track.artist}</p>
+
+                {/* [필수 기능: CRUD/즐겨찾기 삭제 버튼 가능] */}
+                {/* 여기 버튼 추가하면 즐겨찾기 삭제 가능 */}
               </div>
             ))}
           </div>
         </section>
       </main>
 
-      {/* 🔹 하단 플레이어 (메인 페이지와 동일 높이) */}
+      {/* [필수 기능: 컴포넌트 단위 UI] 하단 플레이어 */}
       <PlayerBar />
     </div>
   );
