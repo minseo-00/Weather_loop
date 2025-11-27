@@ -3,6 +3,8 @@
 
 import { useState, useEffect } from "react";
 import PlaylistGrid from "@/widgets/playlist-grid/ui/PlaylistGrid";
+import WeatherHeader from "@/widgets/weather-header/ui/WeatherHeader";
+import PlayerBar from "@/widgets/player-bar/ui/PlayerBar";
 
 export default function MainPage() {
   const [weather, setWeather] = useState<"clear" | "night" | "rain">("clear");
@@ -17,21 +19,6 @@ export default function MainPage() {
     night: "/images/weather-night.jpg",
     rain: "/images/weather-rain.jpg",
   };
-
-  // 페이지 내부 컴포넌트 정의
-  const WeatherHeader = () => (
-    <div className="w-full h-48 flex items-center justify-center text-black font-bold
-                    bg-white/10 backdrop-blur-md shadow-md">
-      WeatherHeader
-    </div>
-  );
-
-  const PlayerBar = () => (
-    <div className="w-full h-36 flex items-center justify-center text-black font-bold
-                    bg-white/10 backdrop-blur-md shadow-inner">
-      PlayerBar
-    </div>
-  );
 
   return (
     <div
