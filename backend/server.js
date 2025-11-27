@@ -1,11 +1,18 @@
-const express = require("express");
-const app = express();
-const PORT = 4000;
+import express from "express";
+import { db } from "./db/connection.js";
 
-app.get("/", (req, res) => {
-  res.send("✅ Weather_loop backend is running!");
+const app = express();
+
+app.get("/test-db", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT 1+1 as rusult");
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "DB 연결 실패" });
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(` Server running on http://localhost:${PORT}`);
+app.listen(3001, () => {
+  console.log("서버 실행 중");
 });
