@@ -1,8 +1,34 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
 
 export default function SignUpPage() {
+  const [form, setForm] = useState({
+    user_id: "",
+    password: "",
+    name: "",
+    email:"",
+    nickname: "",
+    phone_number: "",
+    local: "",
+    latitude: null,
+    longitude: null
+  });
+
+  const register = async () => {
+    const res = await fetch("http://localhost:3001/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
+    });
+
+    console.log(await res.json());
+  };
+
+  // 공통 핸들러
+  const handleChange = (key: string, value: string) => {
+    setForm(prev => ({ ...prev, [key]: value }));
+  };
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
 
@@ -26,53 +52,85 @@ export default function SignUpPage() {
         {/* 제목 */}
         <h1 className="text-3xl font-bold text-center">회원가입</h1>
 
-        {/* 이름 입력 */}
+        {/* 아이디 */}
         <div className="flex flex-col space-y-2">
-          <label className="font-medium text-gray-700">이름</label>
+          <label className="font-medium text-gray-700">아이디</label>
           <input
             type="text"
-            placeholder="이름을 입력해주세요"
-            className="border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
+            value={form.user_id}
+            onChange={e => handleChange("user_id", e.target.value)}
+            placeholder="아이디를 입력해주세요"
+            className="border rounded-lg p-3"
           />
-        </div>
-
-        {/* 닉네임 입력 */}
-        <div className="flex flex-col space-y-2">
-          <label className="font-medium text-gray-700">닉네임</label>
-          <input
-            type="text"
-            placeholder="닉네임을 입력해주세요"
-            className="border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-          />
-        </div>
-
-        {/* 이메일 입력 */}
-        <div className="flex flex-col space-y-2">
-          <label className="font-medium text-gray-700">이메일</label>
-          <input
-            type="email"
-            placeholder="이메일을 입력해주세요"
-            className="border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
-          />
-        </div>
-
-        {/* 비밀번호 입력 */}
+        </div> 
+        {/* 비밀번호 */}
         <div className="flex flex-col space-y-2">
           <label className="font-medium text-gray-700">비밀번호</label>
           <input
             type="password"
+            value={form.password}
+            onChange={e => handleChange("password", e.target.value)}
             placeholder="비밀번호를 입력해주세요"
-            className="border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
+            className="border rounded-lg p-3"
+          />
+        </div>
+        {/* 이름 */}
+        <div className="flex flex-col space-y-2">
+          <label className="font-medium text-gray-700">이름</label>
+          <input
+            type="text"
+            value={form.name}
+            onChange={e => handleChange("name", e.target.value)}
+            placeholder="이름을 입력해주세요"
+            className="border rounded-lg p-3"
           />
         </div>
 
-        {/* 비밀번호 확인 */}
+        {/* 닉네임 */}
         <div className="flex flex-col space-y-2">
-          <label className="font-medium text-gray-700">비밀번호 확인</label>
+          <label className="font-medium text-gray-700">닉네임</label>
           <input
-            type="password"
-            placeholder="비밀번호를 한 번 더 입력해주세요"
-            className="border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 outline-none"
+            type="text"
+            value={form.nickname}
+            onChange={e => handleChange("nickname", e.target.value)}
+            placeholder="닉네임을 입력해주세요"
+            className="border rounded-lg p-3"
+          />
+        </div>
+
+        {/* 이메일 (user_id) */}
+        <div className="flex flex-col space-y-2">
+          <label className="font-medium text-gray-700">이메일</label>
+          <input
+            type="email"
+            value={form.email}
+            onChange={e => handleChange("email", e.target.value)}
+            placeholder="이메일을 입력해주세요"
+            className="border rounded-lg p-3"
+          />
+        </div>
+
+        {/* 전화번호 */}
+        <div className="flex flex-col space-y-2">
+          <label className="font-medium text-gray-700">전화번호</label>
+          <input
+            type="text"
+            value={form.phone_number}
+            onChange={e => handleChange("phone_number", e.target.value)}
+            placeholder="전화번호를 입력해주세요"
+            className="border rounded-lg p-3"
+          />
+        </div>
+
+        {/* 지역(local) */}
+        <div className="flex flex-col space-y-2">
+          <label className="font-medium text-gray-700">지역</label>
+          <input
+            type="text"
+            value={form.local}
+            onChange={e => handleChange("local", e.target.value)}
+            placeholder="지역명을 입력해주세요"
+            className="border rounded-lg p-3"
           />
         </div>
 
@@ -135,8 +193,9 @@ export default function SignUpPage() {
         </div>
 
         {/* 회원가입 버튼 */}
-        <button className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-          회원가입
+        <button onClick={register}
+          className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+            회원가입
         </button>
       </div>
     </div>

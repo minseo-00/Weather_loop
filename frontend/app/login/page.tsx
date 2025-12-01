@@ -6,9 +6,20 @@ import Input from "@/shared/ui/Input";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [user_id, setUserId] = useState("");
 
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const login = async () => {
+    const res = await fetch("http://localhost:3001/auth/login", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id, password })
+    });
+
+  console.log(await res.json());
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
@@ -33,14 +44,14 @@ export default function LoginPage() {
           <h1 className="text-xl font-bold">이메일과 비밀번호를 입력해주세요.</h1>
         </div>
 
-        {/* 이메일 입력 */}
+        {/* 아이디 입력 */}
         <Input
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          placeholder="sample@gmail.com"
+          type="id"
+          value={user_id}
+          onChange={e => setUserId(e.target.value)}
+          placeholder="id"
         />
-
+        
         {/* 비밀번호 입력 */}
         <Input
           type="password"

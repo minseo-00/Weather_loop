@@ -6,14 +6,14 @@ import authRouter from "./src/auth.js";
 
 const app = express();
 
-app.use(express.json());
-app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:3000",
     credentials: true
   })
 );
+app.use(express.json());
+app.use(cookieParser());
 
 // 테스트용 DB 라우터
 app.get("/test-db", async (req, res) => {
