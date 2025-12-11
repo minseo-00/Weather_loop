@@ -1,69 +1,70 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import WeatherHeader from "@/widgets/weather-header/ui/WeatherHeader";
 
 export default function SettingsPage() {
   const router = useRouter();
 
   return (
-    <div className="w-[1200px] h-[1467px] mx-auto relative bg-white overflow-hidden shadow-lg rounded-xl mt-10">
-      {/* [필수 기능: UI/UX 디자인] 상단 제목 */}
-      <div className="text-2xl font-semibold text-gray-800 px-6 pt-6">설정</div>
-
-      {/* [필수 기능: UI/UX 디자인] 상단 구분선 */}
-      <div className="w-[1125px] h-0 left-[23px] top-[129px] absolute outline outline-1 outline-offset-[-0.50px] outline-black"></div>
-
-      {/* [필수 기능: UI/UX 디자인 / 컴포넌트 단위 UI] 프로필 원형 + 이름 */}
-      <div className="w-64 h-64 left-[475px] top-[180px] absolute bg-zinc-300 rounded-full flex items-center justify-center text-3xl font-medium text-black font-['Noto_Sans_KR']">
-        프사 변경
-      </div>
-      <div className="w-28 h-20 left-[543px] top-[430px] absolute text-center text-black text-4xl font-medium font-['Noto_Sans_KR']">
-        NAME
-      </div>
-
-      {/* [필수 기능: 이벤트 핸들링 / 라우팅] ← 돌아가기 버튼 */}
-      <button
-        onClick={() => router.push("/favorites")}
-        className="absolute top-6 right-6 text-gray-500 hover:text-black transition"
-      >
-        ← 돌아가기
-      </button>
-
-      {/* [필수 기능: 컴포넌트 단위 UI / CRUD / 데이터 표시] 개인 정보 영역 */}
-      <div className="absolute left-[100px] top-[600px] w-[1000px]">
-        <h2 className="text-xl font-semibold mb-6 text-gray-800">개인 정보</h2>
-
-        <div className="flex justify-between border-b py-4">
-          <span className="font-semibold text-gray-700">실명</span>
-          <span className="text-gray-600">상열 이</span>
-          <button className="text-gray-400 hover:text-black">수정</button> {/* [CRUD: 수정] */}
-        </div>
-
-        <div className="flex justify-between border-b py-4">
-          <span className="font-semibold text-gray-700">선호하는 이름</span>
-          <span className="text-gray-600">미지출</span>
-          <button className="text-gray-400 hover:text-black">추가</button> {/* [CRUD: 추가] */}
-        </div>
-
-        <div className="flex justify-between border-b py-4 items-center">
-          <span className="font-semibold text-gray-700">이메일 주소</span>
-          <span className="text-gray-600">a***@naver.com</span>
-          <button className="border px-2 py-1 rounded-md text-sm text-gray-600 hover:bg-gray-100 transition">
-            확인
-          </button>
-        </div>
-
-        <div className="flex justify-between border-b py-4">
-          <span className="font-semibold text-gray-700">전화번호</span>
-          <span className="text-gray-600">+82 **-****-2841</span>
-          <button className="text-gray-400 hover:text-black">수정</button> {/* [CRUD: 수정] */}
-        </div>
-
-        <div className="flex justify-between border-b py-4">
-          <span className="font-semibold text-gray-700">본인 인증</span>
-          <span className="text-gray-600">시작 안 함</span>
-          <button className="text-gray-400 hover:text-black">시작</button>
-        </div>
+    <div
+      className="min-h-screen w-full flex flex-col bg-[#f5ecd7]"
+      style={{
+        backgroundImage: 'url(https://www.transparenttextures.com/patterns/wood-pattern.png)',
+        backgroundRepeat: 'repeat',
+      }}
+    >
+      <WeatherHeader />
+      <div className="flex flex-1 w-full">
+        {/* 좌측 메뉴 */}
+        <aside className="w-80 min-h-full border-r border-[#d2b48c] bg-[#f5ecd7] flex flex-col py-12 px-8 gap-2">
+          <h2
+            className="w-full min-w-0 text-left text-3xl font-bold text-[#7c5c3a] mt-24 mb-8 leading-tight break-words whitespace-normal overflow-visible"
+            style={{ wordBreak: 'break-word', minWidth: 0 }}
+          >
+            계정 관리
+          </h2>
+          <nav className="flex flex-col gap-2">
+            <button className="w-full px-4 py-3 rounded-xl bg-[#e2cfa7] text-[#7c5c3a] font-semibold shadow hover:bg-[#f5ecd7] transition text-left">
+              개인 정보
+            </button>
+          </nav>
+        </aside>
+        {/* 우측 정보 */}
+        <main className="flex-1 min-h-full flex flex-col px-16 py-12">
+          <h2
+            className="w-full min-w-0 text-left text-3xl font-bold text-[#7c5c3a] mt-24 mb-8 leading-tight break-words whitespace-normal overflow-visible"
+            style={{ wordBreak: 'break-word', minWidth: 0 }}
+          >
+            개인 정보
+          </h2>
+          <div className="bg-[#f5ecd7] rounded-2xl shadow p-8 w-full max-w-2xl mx-auto">
+            <div className="flex items-center gap-8 mb-8">
+              <div className="w-28 h-28 rounded-full bg-[#e2cfa7] border-2 border-[#d2b48c] flex items-center justify-center text-2xl text-[#bfa77a] font-bold">프사</div>
+              <div>
+                <div className="text-xl font-bold text-[#7c5c3a]">상열 이</div>
+                <div className="text-base text-[#bfa77a]">미지출</div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-6">
+              <div className="flex justify-between items-center border-b border-[#e2cfa7] pb-4">
+                <span className="font-normal text-[#bfa77a]">이메일 주소</span>
+                <span className="text-[#bfa77a]">a***@naver.com</span>
+                <button className="border px-3 py-1 rounded-lg text-sm text-[#7c5c3a] bg-[#e2cfa7] hover:bg-[#f5ecd7] transition">확인</button>
+              </div>
+              <div className="flex justify-between items-center border-b border-[#e2cfa7] pb-4">
+                <span className="font-normal text-[#bfa77a]">전화번호</span>
+                <span className="text-[#bfa77a]">+82 **-****-2841</span>
+                <button className="text-[#bfa77a] hover:text-[#7c5c3a]">수정</button>
+              </div>
+              <div className="flex justify-between items-center border-b border-[#e2cfa7] pb-4">
+                <span className="font-normal text-[#bfa77a]">본인 인증</span>
+                <span className="text-[#bfa77a]">시작 안 함</span>
+                <button className="text-[#bfa77a] hover:text-[#7c5c3a]">시작</button>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

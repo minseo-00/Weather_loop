@@ -53,7 +53,15 @@ export default function WeatherHeader() {
   ];
 
   return (
-    <header className="fixed top-0 left-0 w-full flex items-center justify-between px-6 py-3 backdrop-blur-xl bg-black/20 z-50">
+    <header
+      className="fixed top-0 left-0 w-full flex items-center justify-between px-6 py-3 z-50"
+      style={{
+        backgroundColor: '#f5ecd7',
+        backgroundImage: 'url(https://www.transparenttextures.com/patterns/wood-pattern.png)',
+        backgroundRepeat: 'repeat',
+        borderBottom: '1px solid #d2b48c',
+      }}
+    >
       {/* 좌측 로고 */}
       <div className="flex items-center gap-2">
         <div className="relative w-8 h-8">
