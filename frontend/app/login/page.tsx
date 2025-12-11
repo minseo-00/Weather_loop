@@ -1,23 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import Input from "@/shared/ui/Input";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [user_id, setUserId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const login = async () => {
-    const res = await fetch("http://localhost:3001/auth/login", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id, password })
-    });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-    console.log(await res.json());
+  const login = async () => {
+    setError("");
+    try {
+      const res = await axios.post("http://localhost:3001/auth/login", { email, password }, {
+        withCredentials: true,
+      });
+      setSuccess(true);
+      setTimeout(() => {
+        if (res.data.token) {
+          localStorage.setItem("token", res.data.token);
+        }
+        router.push("/main");
+        setTimeout(() => window.location.reload(), 300);
+      }, 1000);
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("서버 오류가 발생했습니다.");
+      }
+    }
   };
 
   return (
@@ -42,19 +58,22 @@ export default function LoginPage() {
 
       {/* 로그인 박스 */}
       <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg space-y-6">
-        
         <div className="space-y-1">
           <h1 className="text-xl font-bold">아이디와 비밀번호를 입력해주세요.</h1>
         </div>
-
+        {error && (
+          <div className="text-red-500 text-center font-semibold mb-2">{error}</div>
+        )}
+        {success && (
+          <div className="text-green-600 text-center font-semibold mb-2">로그인 성공! 메인페이지로 이동합니다.</div>
+        )}
         {/* 아이디 */}
         <Input
-          type="text"
-          value={user_id}
-          onChange={(e) => setUserId(e.target.value)}
-          placeholder="아이디를 입력하세요"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="이메일을 입력하세요"
         />
-
         {/* 비밀번호 */}
         <Input
           type="password"
@@ -62,20 +81,17 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="비밀번호를 입력하세요"
         />
-
         {/* 로그인 유지 & 아이디 저장 */}
         <div className="flex justify-between text-sm text-gray-600">
           <label className="flex items-center space-x-2 cursor-pointer">
             <input type="checkbox" className="w-4 h-4" />
             <span>로그인 상태 유지</span>
           </label>
-
           <label className="flex items-center space-x-2 cursor-pointer">
             <input type="checkbox" className="w-4 h-4" />
             <span>아이디 저장</span>
           </label>
         </div>
-
         {/* 로그인 버튼 */}
         <button
           onClick={login}
@@ -83,7 +99,6 @@ export default function LoginPage() {
         >
           로그인
         </button>
-
         {/* 아이디/비번 찾기 + 회원가입 */}
         <div className="flex justify-center gap-6 text-sm text-gray-500 mt-2">
           <button className="hover:underline">비밀번호 찾기</button>
@@ -95,7 +110,6 @@ export default function LoginPage() {
             회원가입
           </button>
         </div>
-
       </div>
     </div>
   );
