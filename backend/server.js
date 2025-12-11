@@ -1,5 +1,5 @@
 import express from "express";
-import { db } from "./db/connection.js";
+import { db, testConnection } from "./db/connection.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRouter from "./src/auth.js";
@@ -30,6 +30,15 @@ app.get("/test-db", async (req, res) => {
 app.use("/auth", authRouter);
 
 // 서버 실행 (항상 마지막에)
-app.listen(3001, () => {
-  console.log("서버 실행 중");
-});
+// Start server only after DB connection test
+testConnection()
+  .then(() => {
+    app.listen(3001, () => {
+      console.log("서버 실행 중 (DB 연결 확인됨)");
+    });
+  })
+  .catch((err) => {
+    console.error('시작 중 DB 연결 실패 — 서버를 시작하지 않습니다.')
+    console.error(err)
+    process.exit(1)
+  })
