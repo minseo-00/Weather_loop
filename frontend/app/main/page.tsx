@@ -7,7 +7,15 @@ import MainContent from "@/entities/main-content/ui/MainContent";
 
 export default function MainPage() {
   return (
-    <div className="flex flex-col h-screen w-full bg-black text-white overflow-hidden">
+    <div
+      className="flex flex-col h-screen w-full overflow-hidden"
+      style={{
+        backgroundColor: '#f5ecd7',
+        backgroundImage: 'url(https://www.transparenttextures.com/patterns/wood-pattern.png)',
+        backgroundRepeat: 'repeat',
+        color: '#7c5c3a',
+      }}
+    >
       {/* Weather Header - Full Width Top */}
       <WeatherHeader />
 
@@ -20,8 +28,6 @@ export default function MainPage() {
         <MainContent />
       </div>
 
-      {/* Player Bar - Full Width Bottom */}
-      <PlayerBar />
     </div>
   );
 }

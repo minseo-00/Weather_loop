@@ -18,30 +18,39 @@ export default function FavoritesPage() {
   ];
 
   return (
-    <div className="relative w-full min-h-screen flex flex-col items-center bg-white">
+    <div
+      className="relative w-full min-h-screen flex flex-col items-center"
+      style={{
+        backgroundColor: '#f5ecd7',
+        backgroundImage: 'url(https://www.transparenttextures.com/patterns/wood-pattern.png)',
+        backgroundRepeat: 'repeat',
+        color: '#7c5c3a',
+      }}
+    >
       {/* [필수 기능: 컴포넌트 단위 UI] 상단 헤더 */}
       <WeatherHeader />
 
       {/* 본문 */}
       <main className="flex-1 w-full flex">
         {/* [필수 기능: 컴포넌트 단위 UI & Props/State] 왼쪽 프로필 영역 */}
-        <aside className="relative w-1/4 border-r border-gray-300 flex flex-col items-center pt-16">
+        <aside className="relative w-1/4 border-r border-[#d2b48c] flex flex-col items-center pt-16 bg-[#f5ecd7]">
           <img
             src="/images/hedgehog.png"
             alt="profile"
-            className="w-40 h-40 rounded-full object-cover border-4 border-blue-100 shadow-md"
+            className="w-40 h-40 rounded-full object-cover border-4 border-[#d2b48c] shadow-md bg-[#e2cfa7]"
           />
 
           {/* [필수 기능: UI/UX] 사용자 이름/소개 표시 */}
           <div className="mt-5 text-center text-black">
-            <p className="text-lg font-medium">따봉도치야</p>
-            <p className="text-sm opacity-80">고마워</p>
+            <p className="text-lg font-medium text-[#7c5c3a]">따봉도치야</p>
+            <p className="text-sm opacity-80 text-[#bfa77a]">고마워</p>
           </div>
 
           {/* [필수 기능: 이벤트 핸들링 / 라우팅] 설정 페이지 이동 */}
           <button
             onClick={() => router.push("/settings")}
-            className="absolute bottom-20 left-6 text-sm px-4 py-1.5 border rounded-lg text-black/90 hover:bg-gray-100 transition-all"
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-base px-6 py-2 border-2 border-[#d2b48c] rounded-xl text-[#7c5c3a] bg-[#f5ecd7] shadow hover:bg-[#e2cfa7] transition-all"
+            style={{ minWidth: 120 }}
           >
             ⚙ 설정
           </button>
@@ -50,31 +59,38 @@ export default function FavoritesPage() {
         {/* [필수 기능: 리스트 렌더링] 즐겨찾기 카드 그리드 */}
         <section className="flex-1 flex flex-col items-center justify-start py-10">
           {/* [필수 기능: UI/UX] 섹션 제목 */}
-          <h2 className="text-5xl font-light text-black mb-10">
-            Favorite
+          <h2
+            className="w-full text-center text-4xl font-bold text-[#7c5c3a] mt-6 mb-2 tracking-wide leading-tight break-keep whitespace-normal"
+            style={{ wordBreak: 'keep-all' }}
+          >
+            내가 좋아하는 음악들
           </h2>
+          <p className="w-full text-center mb-8 text-lg text-[#bfa77a]">마음에 드는 곡을 모아둔 나만의 리스트</p>
 
           {/* [필수 기능: 리스트 렌더링 / CRUD] 즐겨찾기 목록 반복 출력 */}
           <div className="grid grid-cols-3 gap-10">
             {favorites.map((track) => (
               <div
                 key={track.id}
-                className="w-60 h-72 bg-gray-100 rounded-2xl shadow-lg flex flex-col items-center p-4 hover:bg-gray-200 transition"
+                className="w-64 h-80 bg-[#f5ecd7] rounded-3xl shadow-xl flex flex-col items-center p-5 border-2 border-[#d2b48c] relative transition-all duration-200 hover:-translate-y-2 hover:shadow-2xl"
               >
-                {/* [필수 기능: UI/UX] 곡 이미지 */}
-                <img
-                  src={track.img}
-                  alt={track.title}
-                  className="w-40 h-40 object-cover rounded-xl border-2 border-gray-300 shadow"
-                />
-                {/* [필수 기능: UI/UX] 곡 제목/아티스트 표시 */}
-                <p className="text-black text-lg font-semibold mt-4">
-                  {track.title}
-                </p>
-                <p className="text-black/80 text-sm mt-1">{track.artist}</p>
-
-                {/* [필수 기능: CRUD/즐겨찾기 삭제 버튼 가능] */}
-                {/* 여기 버튼 추가하면 즐겨찾기 삭제 가능 */}
+                {/* 하트 아이콘 */}
+                <div className="absolute top-5 right-5 text-[#e57373] text-2xl">
+                  ♥
+                </div>
+                {/* 앨범아트 */}
+                <div className="w-44 h-44 rounded-2xl overflow-hidden flex items-center justify-center bg-[#e2cfa7] border-2 border-[#d2b48c] shadow">
+                  <img
+                    src={track.img}
+                    alt={track.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {/* 곡 정보 */}
+                <div className="mt-4 text-center w-full">
+                  <p className="text-xl font-bold text-[#7c5c3a] mb-1 truncate">{track.title}</p>
+                  <p className="text-base text-[#bfa77a] truncate">{track.artist}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -82,7 +98,6 @@ export default function FavoritesPage() {
       </main>
 
       {/* [필수 기능: 컴포넌트 단위 UI] 하단 플레이어 */}
-      <PlayerBar />
     </div>
   );
 }

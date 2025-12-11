@@ -3,115 +3,74 @@
 import { useState } from "react";
 
 export default function Sidebar() {
-  const [draggedOver, setDraggedOver] = useState(false);
+  // Cassette 플레이어 UI 상태 (곡목록 없음)
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDraggedOver(true);
-  };
-
-  const handleDragLeave = () => {
-    setDraggedOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDraggedOver(false);
-    const cassetteName = e.dataTransfer.getData("cassette-name");
-    setSelectedAlbum(cassetteName);
+  const genreSongs: Record<string, string[]> = {
+    Pop: ["Love Dive - IVE", "Ditto - NewJeans", "Hype Boy - NewJeans"],
+    Jazz: ["Autumn Leaves - Bill Evans", "Take Five - Dave Brubeck", "Blue in Green - Miles Davis"],
+    Rock: ["Bohemian Rhapsody - Queen", "Stairway to Heaven - Led Zeppelin", "Hotel California - Eagles"],
+    LoFi: ["Snowman - WYS", "Chillhop Essentials - Various Artists", "Dreams - Joakim Karud"],
   };
 
   return (
-    <aside className="w-72 bg-black border-r border-white/10 flex flex-col overflow-hidden">
-      {/* Album Area - Center */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-        {/* Album Frame */}
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`
-            w-56 h-56 rounded-lg flex flex-col items-center justify-center
-            transition-all duration-300 cursor-grab
-            ${
-              draggedOver
-                ? "border-2 border-cyan-500 shadow-lg shadow-cyan-500/50 bg-cyan-500/5"
-                : "border-2 border-white/20 bg-white/5 hover:border-white/30"
-            }
-          `}
-        >
-          {selectedAlbum ? (
-            <>
-              {/* Album Cover Placeholder */}
-              <div className="w-48 h-48 bg-gradient-to-br from-purple-600 to-blue-600 rounded-md mb-4 flex items-center justify-center shadow-lg">
-                <span className="text-white text-sm font-semibold">
-                  {selectedAlbum}
-                </span>
-              </div>
-              {/* Recommended Songs */}
-              <div className="w-full px-4 mt-2">
-                <p className="text-xs font-semibold text-white/70 mb-2">
-                  Recommended Songs
-                </p>
-                <ul className="text-xs text-white/50 space-y-1">
-                  <li>• Song One</li>
-                  <li>• Song Two</li>
-                  <li>• Song Three</li>
-                </ul>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-5xl mb-4 opacity-50">♫</div>
-              <p className="text-sm font-semibold text-white mb-2">
-                Music Album
-              </p>
-              <p className="text-xs text-white/50 text-center">
-                Drag cassette here
-                <br />
-                to change music
-              </p>
-            </>
-          )}
+    <aside className="w-80 bg-[#f5ecd7] border-r border-[#d2b48c] flex flex-col items-center justify-center py-8 overflow-hidden">
+      {/* 앨범아트 영역 */}
+      <div className="w-56 h-56 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mb-8 border border-white/10">
+        <div className="w-32 h-32 bg-[#e2cfa7] rounded-md flex items-center justify-center shadow-lg">
+          {/* 앨범아트 아이콘 */}
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="28" fill="#222" />
+            <circle cx="32" cy="32" r="8" fill="#444" />
+            <circle cx="44" cy="20" r="4" fill="#444" />
+          </svg>
         </div>
       </div>
 
-      {/* Controls - Bottom */}
-      <div className="flex items-center justify-center gap-4 px-6 pb-8">
-        {/* Previous Button */}
-        <button className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-200 group">
-          <svg
-            className="w-5 h-5 text-white group-hover:scale-110 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-
-        {/* Next Button */}
-        <button className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-200 group">
-          <svg
-            className="w-5 h-5 text-white group-hover:scale-110 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
+      {/* 곡 정보 및 안내문구 */}
+      <div className="flex flex-col items-center w-full px-4">
+        <div className="text-center mb-2">
+          <span className="text-lg font-bold text-[#7c5c3a]">재생목록</span>
+          <span className="text-lg font-bold text-[#bfa77a] ml-4">음악서랍</span>
+          <span className="text-lg font-bold text-[#bfa77a] ml-4">믹스업</span>
+        </div>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <span className="text-xs text-[#bfa77a]">00:00</span>
+          <span className="text-xs text-[#d2b48c]">00:00</span>
+        </div>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <button className="p-2 rounded-full bg-[#e2cfa7]/60 hover:bg-[#e2cfa7]/80">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <button className="p-2 rounded-full bg-[#e2cfa7]/60 hover:bg-[#e2cfa7]/80">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button className="p-2 rounded-full bg-[#e2cfa7]/60 hover:bg-[#e2cfa7]/80">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <span className="text-base font-bold text-[#7c5c3a]">재생목록</span>
+          <span className="text-base font-bold text-[#bfa77a]">음악서랍</span>
+          <span className="text-base font-bold text-[#bfa77a]">믹스업</span>
+        </div>
+        <div className="text-center mt-8 mb-4">
+          {selectedAlbum ? (
+            <>
+              <p className="text-[#7c5c3a] text-base mb-2">{selectedAlbum} 추천곡</p>
+              <ul className="text-[#bfa77a] text-sm mb-2">
+                {genreSongs[selectedAlbum]?.map((song, idx) => (
+                  <li key={idx}>• {song}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <>
+              <p className="text-[#7c5c3a] text-base mb-2">곡 목록이 없어요.</p>
+              <p className="text-[#bfa77a] text-sm">라디오에서 원하는 장르를 선택해보세요.</p>
+            </>
+          )}
+        </div>
+   
       </div>
     </aside>
   );

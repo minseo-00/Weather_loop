@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 interface CassetteProps {
   id: string;
   genre: string;
+  rotation: number;
 }
 
 export default function Cassette({ id, genre }: CassetteProps) {
@@ -30,46 +31,29 @@ export default function Cassette({ id, genre }: CassetteProps) {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className={`
-        w-32 h-40 cursor-grab active:cursor-grabbing
-        transition-all duration-200
-        ${isDragging ? "opacity-50 scale-95" : "hover:scale-105"}
-      `}
-      style={{
-        transform: `rotate(${rotation}deg)`,
-      }}
+      className={`w-[260px] h-[140px] cursor-grab active:cursor-grabbing flex items-center justify-center select-none transition-all duration-200 ${isDragging ? "opacity-50 scale-95" : "hover:scale-105"}`}
+      style={{ transform: `rotate(${rotation}deg)` }}
     >
-      {/* Cassette Tape Box */}
-      <div
-        className={`
-          w-full h-full rounded-lg overflow-hidden
-          bg-gradient-to-b from-slate-900 to-slate-800
-          border-2 border-white/20
-          shadow-xl hover:shadow-2xl
-          transition-all duration-300
-          flex flex-col items-center justify-between p-4
-          ${isDragging ? "shadow-cyan-500/50" : ""}
-        `}
-      >
-        {/* Top Section - Spools */}
-        <div className="flex gap-3 w-full justify-center">
-          <div className="w-6 h-6 rounded-full bg-gray-700 border border-white/30" />
-          <div className="w-6 h-6 rounded-full bg-gray-700 border border-white/30" />
-        </div>
-
-        {/* Middle Section - Tape */}
-        <div className="w-full h-8 bg-gray-800 border border-white/20 rounded-sm flex items-center justify-center">
-          <div className="w-24 h-1 bg-gray-600 rounded-full" />
-        </div>
-
-        {/* Bottom Section - Label */}
-        <div className="w-full text-center">
-          <p className="text-xs font-bold text-white uppercase tracking-wider truncate">
-            {genre}
-          </p>
-          <p className="text-[10px] text-white/50 mt-1">Cassette</p>
-        </div>
-      </div>
+      {/* 감성 카세트 테이프 SVG */}
+      <svg width="260" height="140" viewBox="0 0 260 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* 본체 */}
+        <rect x="20" y="25" width="220" height="90" rx="18" fill="#222" stroke="#555" strokeWidth="3" />
+        {/* 라벨 */}
+        <rect x="55" y="50" width="150" height="40" rx="8" fill="#f5f5f5" />
+        <text x="130" y="75" textAnchor="middle" fontSize="28" fontWeight="bold" fill="#333" style={{fontFamily:'monospace'}}>{genre}</text>
+        {/* 구멍/스풀 */}
+        <circle cx="70" cy="100" r="20" fill="#444" stroke="#888" strokeWidth="3" />
+        <circle cx="190" cy="100" r="20" fill="#444" stroke="#888" strokeWidth="3" />
+        <circle cx="70" cy="100" r="7" fill="#bbb" />
+        <circle cx="190" cy="100" r="7" fill="#bbb" />
+        {/* 테이프 창 */}
+        <rect x="110" y="97" width="40" height="16" rx="5" fill="#222" stroke="#666" strokeWidth="2" />
+        {/* 나사 */}
+        <circle cx="40" cy="50" r="4" fill="#888" />
+        <circle cx="220" cy="50" r="4" fill="#888" />
+        <circle cx="40" cy="115" r="4" fill="#888" />
+        <circle cx="220" cy="115" r="4" fill="#888" />
+      </svg>
     </div>
   );
 }

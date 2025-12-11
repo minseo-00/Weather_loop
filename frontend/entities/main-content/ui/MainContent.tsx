@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Cassette from "@/entities/cassette/ui";
 
-const GENRES = ["Pop", "Jazz", "LoFi", "Rock", "HipHop", "Indie", "Ambient", "Electronic"];
+const GENRES = ["Pop", "Jazz", "Rock", "LoFi"];
 
 export default function MainContent() {
   const [cassettes] = useState(GENRES);
@@ -18,14 +18,18 @@ export default function MainContent() {
   );
 
   return (
-    <main className="flex-1 bg-gradient-to-b from-black via-slate-950 to-black overflow-auto">
-      {/* Cassette Grid Container */}
-      <div className="p-8 h-full">
-        <div className="w-full h-full flex flex-wrap content-start gap-8 lg:gap-12">
-          {cassettes.map((genre, index) => (
-            <Cassette key={index} id={`cassette-${index}`} genre={genre} rotation={rotations[index]} />
-          ))}
-        </div>
+    <main
+      className="flex-1 bg-[#f5ecd7] overflow-auto flex items-center justify-center"
+      style={{
+        backgroundImage: 'url(https://www.transparenttextures.com/patterns/wood-pattern.png)',
+        backgroundRepeat: 'repeat',
+      }}
+    >
+      {/* Cassette 2x2 Grid */}
+      <div className="grid grid-cols-2 grid-rows-2 gap-16 py-16 w-full max-w-5xl place-items-center">
+        {cassettes.map((genre, index) => (
+          <Cassette key={index} id={`cassette-${index}`} genre={genre} rotation={rotations[index]} />
+        ))}
       </div>
 
       {/* Optional: Subtle background grid pattern */}
