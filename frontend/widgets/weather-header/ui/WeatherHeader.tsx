@@ -1,123 +1,89 @@
-"use client";
 
+"use client";
 import { useState, useEffect } from "react";
-import { useWeather } from "../model/useWeather";
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function WeatherHeader() {
-  const { time, temp, icon } = useWeather();
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [profileImg, setProfileImg] = useState("/images/profile.jpg");
-
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
+  // 토큰 유효성 검사
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const savedProfile = localStorage.getItem("profileImg");
-
-    if (token) setIsLoggedIn(true);
-    if (savedProfile) setProfileImg(savedProfile);
+    // 1초마다 /auth/me로 로그인 상태 확인
+    const checkLoginStatus = async () => {
+      try {
+        const res = await axios.get("http://localhost:3001/auth/me", { withCredentials: true });
+        setIsLoggedIn(!!res.data.user);
+        console.log("WeatherHeader.tsx:23 로그인 상태:", !!res.data.user);
+      } catch (err) {
+        setIsLoggedIn(false);
+        console.log("WeatherHeader.tsx:23 로그인 상태: false (에러)");
+      }
+    };
+    checkLoginStatus();
+    const interval = setInterval(checkLoginStatus, 1000);
+    return () => clearInterval(interval);
   }, []);
+
+  // 로그아웃
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    axios.post("http://localhost:3001/auth/logout", {}, { withCredentials: true })
+      .then(() => {
+        setIsLoggedIn(false);
+        setMenuOpen(false);
+        router.push("/");
+      })
+      .finally(() => {
+        // 즉시 /auth/me 호출하여 UI 갱신
+        axios.get("http://localhost:3001/auth/me", { withCredentials: true })
+          .then(res => setIsLoggedIn(!!res.data.user));
+      });
+  };
+
+  // 메뉴 항목 배열
+  const menuItems = [
+    { name: "홈으로 가기", path: "/", show: true },
+    { name: "마이페이지", path: "/favorites", show: isLoggedIn },
+    { name: "로그인/회원가입", path: "/login", show: !isLoggedIn },
+  ];
 
   return (
     <header className="fixed top-0 left-0 w-full flex items-center justify-between px-6 py-3 backdrop-blur-xl bg-black/20 z-50">
-
-      {/* 중앙 정렬 영역 */}
-      <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
-
-        {/* 시간 */}
-        <span className="text-xs text-white bg-black/20 px-2 py-1 rounded-full">
-          {time}
-        </span>
-
-        {/* 로고 */}
-        <span className="flex items-center gap-2 text-sm font-semibold text-white bg-black/20 px-3 py-1 rounded-full">
-          <div className="relative w-5 h-5">
-            <Image
-              src="/images/weather-clear-logo.png"
-              alt="Weather Logo"
-              fill
-              className="object-contain"
-            />
-          </div>
-          Weather Loop
-        </span>
-
-        {/* 날씨 */}
-        <span className="text-xs text-white flex items-center gap-1 bg-black/20 px-2 py-1 rounded-full">
-          {icon} {temp}°C
-        </span>
-      </div>
-
-      {/* 오른쪽 영역 */}
-      <div className="flex items-center gap-4 ml-auto">
-
-        {/* 프로필 */}
-        <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/50">
-          <Image
-            src={profileImg}
-            alt="프로필"
-            fill
-            className="object-cover"
-          />
+      {/* 좌측 로고 */}
+      <div className="flex items-center gap-2">
+        <div className="relative w-8 h-8">
+          <Image src="/images/weather-clear-logo.png" alt="Weather Logo" fill className="object-contain" />
         </div>
-
-        {/* 햄버거 메뉴 버튼 */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="text-white text-2xl"
-        >
-          ☰
-        </button>
+        <span className="text-lg font-bold text-white ml-2">Weather Loop</span>
       </div>
+
+      {/* 햄버거 메뉴 버튼 */}
+      <button onClick={() => setMenuOpen((v) => !v)} className="text-white text-2xl ml-auto">☰</button>
 
       {/* 드롭다운 메뉴 */}
       {menuOpen && (
         <div className="absolute top-14 right-6 bg-white/95 shadow-lg rounded-xl p-4 w-44 space-y-3 text-sm">
-
-          {/* 로그인 전 */}
-          {!isLoggedIn && (
-            <>
-              <Link href="/login" className="block hover:opacity-70">
-                로그인
-              </Link>
-              <Link href="/signup" className="block hover:opacity-70">
-                회원가입
-              </Link>
-            </>
-          )}
-
-          {/* 로그인 후 */}
+          {menuItems.filter((item) => item.show).map((item) => (
+            <Link key={item.name} href={item.path} className="block hover:opacity-70" onClick={() => setMenuOpen(false)}>
+              {item.name}
+            </Link>
+          ))}
           {isLoggedIn && (
-            <>
-              <Link href="/profile" className="block hover:opacity-70">
-                프로필 설정
-              </Link>
-
-              <button
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  setIsLoggedIn(false);
-                }}
-                className="block text-red-500 hover:opacity-70"
-              >
-                로그아웃
-              </button>
-            </>
+            <button
+              onClick={handleLogout}
+              className="block text-red-500 hover:opacity-70 mt-2"
+            >
+              로그아웃
+            </button>
           )}
-
-          {/* ⭐ 없이 맨 아래 즐겨찾기 */}
-          <Link
-            href="/favorites"
-            className="block hover:opacity-70 font-medium pt-2 border-t"
-          >
-            즐겨찾기
-          </Link>
         </div>
       )}
-
     </header>
   );
 }
+      {/* 드롭다운 메뉴 */}

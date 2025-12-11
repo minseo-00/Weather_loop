@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface CassetteProps {
   id: string;
   genre: string;
-  rotation?: number;
 }
 
-export default function Cassette({ id, genre, rotation = 0 }: CassetteProps) {
+export default function Cassette({ id, genre }: CassetteProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [rotation, setRotation] = useState(0);
+
+  useEffect(() => {
+    setRotation(Math.random() * 5 - 2.5);
+  }, []);
 
   const handleDragStart = (e: React.DragEvent) => {
     setIsDragging(true);
