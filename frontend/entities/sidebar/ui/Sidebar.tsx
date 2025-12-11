@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Sidebar() {
+  const [mounted, setMounted] = useState(false);
   // Cassette 플레이어 UI 상태 (곡목록 없음)
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
   const genreSongs: Record<string, string[]> = {
@@ -12,6 +14,59 @@ export default function Sidebar() {
     LoFi: ["Snowman - WYS", "Chillhop Essentials - Various Artists", "Dreams - Joakim Karud"],
   };
 
+    // 날씨별 추천 음악 리스트
+    const weatherMusicMap: Record<string, string[]> = {
+      Clear: ["여름 안에서", "Sunny Day", "Walking on Sunshine"],
+      Clouds: ["구름 위에서", "Cloudy Mood", "Grey Sky"],
+      Rain: ["비 오는 거리", "Rainy Day", "Raindrops Keep Fallin’"],
+      Snow: ["첫눈", "Snow Flower", "Let It Snow"],
+      Thunderstorm: ["천둥 번개", "Thunderstruck"],
+      Drizzle: ["이슬비", "Drizzle Song"],
+      Mist: ["안개 속에서", "Misty"],
+      Default: ["기분 좋은 노래", "Feel Good Song"]
+    };
+
+    function getMusicByWeather(weather: string) {
+      return weatherMusicMap[weather] || weatherMusicMap["Default"];
+    }
+
+    const [weather, setWeather] = useState<string>("");
+    const [musicList, setMusicList] = useState<string[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+      setMounted(true);
+      if (typeof window !== "undefined" && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          try {
+            const res = await axios.get("http://localhost:3001/api/weather", {
+              params: { lat: latitude, lon: longitude }
+            });
+            const mainWeather = res.data.weather?.[0]?.main || "";
+            setWeather(mainWeather);
+            setMusicList(getMusicByWeather(mainWeather));
+          } catch (err) {
+            setWeather("");
+            setMusicList(weatherMusicMap["Default"]);
+          } finally {
+            setLoading(false);
+          }
+        }, () => {
+          setWeather("");
+          setMusicList(weatherMusicMap["Default"]);
+          setLoading(false);
+        });
+      } else {
+        setWeather("");
+        setMusicList(weatherMusicMap["Default"]);
+        setLoading(false);
+      }
+    }, []);
+
+  if (!mounted) {
+    return null;
+  }
   return (
     <aside className="w-80 bg-[#f5ecd7] border-r border-[#d2b48c] flex flex-col items-center justify-center py-8 overflow-hidden">
       {/* 앨범아트 영역 */}
@@ -48,11 +103,6 @@ export default function Sidebar() {
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <span className="text-base font-bold text-[#7c5c3a]">재생목록</span>
-          <span className="text-base font-bold text-[#bfa77a]">음악서랍</span>
-          <span className="text-base font-bold text-[#bfa77a]">믹스업</span>
-        </div>
         <div className="text-center mt-8 mb-4">
           {selectedAlbum ? (
             <>
@@ -69,6 +119,15 @@ export default function Sidebar() {
               <p className="text-[#bfa77a] text-sm">라디오에서 원하는 장르를 선택해보세요.</p>
             </>
           )}
+            {/* 날씨 기반 추천곡 영역 */}
+            <div className="mt-8 p-4 rounded-lg bg-[#e2cfa7]/30">
+              <h3 className="font-bold mb-2 text-[#7c5c3a]">오늘의 날씨 기반 추천곡</h3>
+              <ul className="list-disc pl-5 text-[#bfa77a]">
+                {musicList.map((song, idx) => (
+                  <li key={idx}>{song}</li>
+                ))}
+              </ul>
+            </div>
         </div>
    
       </div>

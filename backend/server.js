@@ -3,7 +3,10 @@ import { db, testConnection } from "./db/connection.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRouter from "./src/auth.js";
+import dotenv from "dotenv";
+import axios from "axios";
 
+dotenv.config();
 const app = express();
 
 app.use(
@@ -28,6 +31,23 @@ app.get("/test-db", async (req, res) => {
 
 // 로그인/회원가입 라우터
 app.use("/auth", authRouter);
+
+// 날씨 정보 API 엔드포인트
+app.get("/api/weather", async (req, res) => {
+  const { lat, lon } = req.query;
+  if (!lat || !lon) {
+    return res.status(400).json({ error: "위도와 경도를 입력하세요." });
+  }
+  try {
+    const apiKey = process.env.OPENWEATHER_API_KEY;
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=kr`;
+    const response = await axios.get(url);
+    res.json(response.data);
+  } catch (error) {
+    console.error("날씨 API 에러:", error.response?.data || error.message || error);
+    res.status(500).json({ error: "날씨 정보를 가져오지 못했습니다." });
+  }
+});
 
 // 서버 실행 (항상 마지막에)
 // Start server only after DB connection test
