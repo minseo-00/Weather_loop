@@ -67,7 +67,7 @@ export function WeatherProvider({ children }: { children: ReactNode }) {
   });
 
   const fetchWeather = (lat: number, lon: number) => {
-    axios.get("http://localhost:3001/api/weather", {
+    axios.get("/api/weather", {
       params: { lat, lon }
     }).then(res => {
       const data = res.data;

@@ -50,7 +50,7 @@ export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (
     // 위치 기반 날씨 정보 가져오기
     useEffect(() => {
       const fetchWeather = (lat: number, lon: number) => {
-        axios.get("http://localhost:3001/api/weather", {
+        axios.get("/api/weather", {
           params: { lat, lon }
         }).then(res => {
           const weatherData = res.data;
