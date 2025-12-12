@@ -1,17 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { usePlayer } from "../model/usePlayer";
+import { usePlayer } from "@/widgets/player-bar/context/PlayerProvider";
+import { useEffect } from "react";
 
 export default function PlayerBar() {
-  const { playing, toggle } = usePlayer();
+  const { audioRef, playing, toggle, currentTrack } = usePlayer();
 
-  // 곡 테스트용 (나중에 실제 데이터 연결됨)
-  const currentTrack = {
-    id: "sample",
-    title: "샘플 음악",
-    albumImage: "/images/album.jpg",
-  };
+  useEffect(() => {
+    // ensure audioRef element exists when currentTrack changes
+    if (audioRef.current && currentTrack && currentTrack.preview_url) {
+      audioRef.current.src = currentTrack.preview_url;
+      audioRef.current.play().catch(() => {});
+    }
+  }, [currentTrack, audioRef]);
 
   return (
     <div
@@ -22,15 +24,21 @@ export default function PlayerBar() {
         p-4 flex items-center justify-between
       "
     >
+      <audio ref={audioRef} />
+
       {/* 앨범 이미지 */}
       <div className="flex items-center">
-        <Image
-          src={currentTrack.albumImage}
-          alt="Album"
-          width={48}
-          height={48}
-          className="rounded-md object-cover overflow-hidden"
-        />
+        {currentTrack ? (
+          <Image
+            src={currentTrack.albumImage ?? "/images/album.jpg"}
+            alt="Album"
+            width={48}
+            height={48}
+            className="rounded-md object-cover overflow-hidden"
+          />
+        ) : (
+          <div className="w-12 h-12 bg-gray-300 rounded-md" />
+        )}
       </div>
 
       {/* 재생 버튼 */}
