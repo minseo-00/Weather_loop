@@ -2,18 +2,9 @@
 
 import Image from "next/image";
 import { usePlayer } from "@/widgets/player-bar/context/PlayerProvider";
-import { useEffect } from "react";
 
 export default function PlayerBar() {
-  const { audioRef, playing, toggle, currentTrack } = usePlayer();
-
-  useEffect(() => {
-    // ensure audioRef element exists when currentTrack changes
-    if (audioRef.current && currentTrack && currentTrack.preview_url) {
-      audioRef.current.src = currentTrack.preview_url;
-      audioRef.current.play().catch(() => {});
-    }
-  }, [currentTrack, audioRef]);
+  const { playing, toggle, currentTrack, isReady } = usePlayer();
 
   return (
     <div
@@ -24,8 +15,6 @@ export default function PlayerBar() {
         p-4 flex items-center justify-between
       "
     >
-      <audio ref={audioRef} />
-
       {/* 앨범 이미지 */}
       <div className="flex items-center">
         {currentTrack ? (
@@ -44,10 +33,12 @@ export default function PlayerBar() {
       {/* 재생 버튼 */}
       <button
         onClick={toggle}
-        className="
+        disabled={!isReady}
+        className={`
           w-14 h-14 rounded-full flex items-center justify-center
           bg-white/20 border border-white/30 text-white text-2xl
-        "
+          ${!isReady ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/30'}
+        `}
       >
         {playing ? "⏸" : "▶"}
       </button>

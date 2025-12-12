@@ -11,7 +11,7 @@ router.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://refringent-bioecological-keisha.ngrok-free.dev"
+      "https://oversad-nikole-peatier.ngrok-free.dev"
     ],
     credentials: true,
   })
@@ -132,7 +132,7 @@ router.post("/axios-login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const response = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/login", { email, password }, {
+    const response = await axios.post("https://oversad-nikole-peatier.ngrok-free.dev/auth/login", { email, password }, {
       withCredentials: true,
     });
 

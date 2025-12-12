@@ -38,14 +38,8 @@ export async function GET(request: Request) {
     const data = await resp.json()
     if (data.tracks && data.tracks.items && data.tracks.items.length > 0) {
       allTracks = data.tracks.items;
-      // 미리듣기 곡이 있으면 바로 반환
-      const previewTracks = allTracks.filter((track: any) => !!track.preview_url)
-      if (previewTracks.length > 0) {
-        return NextResponse.json(previewTracks, { status: resp.status })
-      }
-      // 없으면 일단 곡 전체 저장(마지막에 미리듣기 없는 곡도 보여주기 위함)
+      break; // 첫 번째 결과가 있으면 바로 사용
     }
   }
-  // 모든 키워드에 대해 미리듣기 곡이 없으면, 첫 번째 키워드의 전체 곡(미리듣기 없는 곡 포함) 반환
   return NextResponse.json(allTracks, { status: 200 })
 }

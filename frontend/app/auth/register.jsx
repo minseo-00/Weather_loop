@@ -3,13 +3,13 @@ import axios from "axios";
 const register = async () => {
   try {
     const res = await axios.post(
-      "https://refringent-bioecological-keisha.ngrok-free.dev/auth/register",
+      "https://oversad-nikole-peatier.ngrok-free.dev/auth/register",
       form,
       { withCredentials: true }
     );
     // 자동 로그인
     const loginRes = await axios.post(
-      "https://refringent-bioecological-keisha.ngrok-free.dev/auth/login",
+      "https://oversad-nikole-peatier.ngrok-free.dev/auth/login",
       {
         user_id: form.user_id,
         password: form.password
@@ -28,7 +28,7 @@ const register = async () => {
 const login = async () => {
   try {
     await axios.post(
-      "https://refringent-bioecological-keisha.ngrok-free.dev/auth/login",
+      "https://oversad-nikole-peatier.ngrok-free.dev/auth/login",
       {
         user_id: form.user_id,
         password: form.password
@@ -47,7 +47,7 @@ useEffect(() => {
   async function loadUser() {
     try {
       const res = await axios.get(
-        "https://refringent-bioecological-keisha.ngrok-free.dev/auth/me",
+        "https://oversad-nikole-peatier.ngrok-free.dev/auth/me",
         { withCredentials: true }
       );
       setUser(res.data.user);
@@ -61,7 +61,7 @@ useEffect(() => {
 // 로그아웃
 const logout = async () => {
   await axios.post(
-    "https://refringent-bioecological-keisha.ngrok-free.dev/auth/logout",
+    "https://oversad-nikole-peatier.ngrok-free.dev/auth/logout",
     {},
     { withCredentials: true }
   );
