@@ -92,19 +92,17 @@ export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (
 
   // 토큰 유효성 검사
   useEffect(() => {
-    // 1초마다 /auth/me로 로그인 상태 확인
+    // 로그인 상태 확인 (30초마다)
     const checkLoginStatus = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/auth/me`, { withCredentials: true });
         setIsLoggedIn(!!res.data.user);
-        console.log("WeatherHeader.tsx:23 로그인 상태:", !!res.data.user);
       } catch (err) {
         setIsLoggedIn(false);
-        console.log("WeatherHeader.tsx:23 로그인 상태: false (에러)");
       }
     };
     checkLoginStatus();
-    const interval = setInterval(checkLoginStatus, 1000);
+    const interval = setInterval(checkLoginStatus, 30000); // 30초
     return () => clearInterval(interval);
   }, []);
 

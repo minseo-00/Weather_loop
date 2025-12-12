@@ -111,16 +111,23 @@ export default function Sidebar({ weather: weatherProp, selectedGenre: selectedG
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 날씨별 키워드 매핑 (원래대로)
-  const weatherKeywordMap: Record<string, string> = {
-    Clear: "맑음, 청량, 햇살, 여름, 밝은, sunny, clear sky, happy",
-    Rain: "비, 감성, 빗소리, rainy, rain",
-    Snow: "첫눈, 눈, 겨울, snow, winter",
-    Clouds: "흐림, 구름, 몽환, cloudy, cloud, soft, chill, 잔잔한",
-    Thunderstorm: "천둥, 강렬, 록, thunder, rock, energetic, 강한",
-    Drizzle: "이슬비, 잔잔, lo-fi, drizzle, lofi, chill, 부드러운",
-    Mist: "안개, 몽환, mist, dreamy, ambient, lofi, 새벽",
-    Default: "감성, 추천, 인기, pop, best, top"
+  // 날씨별 키워드 매핑 (배열로 변경 - 랜덤 선택 가능)
+  const weatherKeywordMap: Record<string, string[]> = {
+    Clear: ["sunny day playlist", "summer vibes", "happy mood", "feel good music", "upbeat pop", "신나는", "청량한"],
+    Rain: ["rainy day playlist", "rain mood", "melancholy", "lo-fi rain", "acoustic chill", "비오는날", "감성"],
+    Snow: ["winter playlist NOT Winter", "cozy winter music", "christmas chill", "snowfall ambient", "겨울감성 NOT 윈터"],
+    Clouds: ["cloudy mood", "chill vibes", "soft music", "dreamy playlist", "ambient chill", "잔잔한"],
+    Thunderstorm: ["rock energy", "powerful music", "intense playlist", "epic soundtrack", "dramatic"],
+    Drizzle: ["lo-fi chill", "soft rain music", "acoustic relaxing", "calm playlist", "부드러운"],
+    Mist: ["ambient music", "dreamy playlist", "foggy mood", "ethereal", "atmospheric", "새벽감성"],
+    Default: ["top hits 2024", "popular playlist", "trending music", "best chill", "k-pop best"]
+  };
+
+  // 배열에서 랜덤하게 1~2개 선택하는 함수
+  const getRandomKeywords = (keywords: string[]): string => {
+    const shuffled = [...keywords].sort(() => Math.random() - 0.5);
+    const count = Math.random() > 0.5 ? 2 : 1;
+    return shuffled.slice(0, count).join(", ");
   };
 
 
@@ -165,6 +172,55 @@ export default function Sidebar({ weather: weatherProp, selectedGenre: selectedG
       console.log('deviceId', deviceId, 'sdkReady', sdkReady);
     }
   }, [selectedTrack, deviceId, sdkReady]);
+
+  // 현재 선택된 트랙의 인덱스 계산
+  const currentTrackIndex = tracks.findIndex(t => t.id === selectedTrack?.id);
+
+  // 다음 곡 재생 함수
+  const playNextTrack = () => {
+    if (tracks.length === 0) return;
+    const nextIndex = (currentTrackIndex + 1) % tracks.length;
+    setSelectedTrack(tracks[nextIndex]);
+  };
+
+  // 이전 곡 재생 함수
+  const playPrevTrack = () => {
+    if (tracks.length === 0) return;
+    const prevIndex = currentTrackIndex <= 0 ? tracks.length - 1 : currentTrackIndex - 1;
+    setSelectedTrack(tracks[prevIndex]);
+  };
+
+  // 자동 재생 여부 상태 (이전/다음 버튼으로 곡 변경 시에만 자동 재생)
+  const [autoPlay, setAutoPlay] = useState(false);
+
+  // 다음 곡 재생 함수 (자동재생 플래그 설정)
+  const playNextTrackAuto = () => {
+    if (tracks.length === 0) return;
+    const nextIndex = (currentTrackIndex + 1) % tracks.length;
+    setAutoPlay(true);
+    setSelectedTrack(tracks[nextIndex]);
+  };
+
+  // selectedTrack 변경 시 자동 재생 (autoPlay가 true일 때만)
+  useEffect(() => {
+    if (autoPlay && selectedTrack?.preview_url) {
+      if (audio) {
+        audio.pause();
+        setAudio(null);
+      }
+      const newAudio = new Audio(selectedTrack.preview_url);
+      setAudio(newAudio);
+      newAudio.play();
+      setIsPlaying(true);
+      newAudio.onended = () => {
+        setIsPlaying(false);
+        setAudio(null);
+        playNextTrackAuto();
+      };
+      setAutoPlay(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTrack, autoPlay]);
 
   // 재생 시간 상태 및 포맷 함수 (Hook 순서 오류 방지: 최상단에 위치)
   const [currentTime, setCurrentTime] = useState(0);
