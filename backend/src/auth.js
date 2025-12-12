@@ -11,8 +11,8 @@ router.use(
   cors({
     origin: [
       "http://localhost:3000",
-      process.env.FRONTEND_URL
-    ].filter(Boolean),
+      "https://refringent-bioecological-keisha.ngrok-free.dev"
+    ],
     credentials: true,
   })
 );
@@ -20,16 +20,16 @@ router.use(
 //   회원가입
 
 router.post("/register", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, name, nickname, local, latitude, longitude } = req.body;
 
   // 프론트 유효성 검사
-  if (!email || !password) {
-    return res.status(400).json({ error: "아이디(이메일)와 비밀번호를 입력해주세요." });
+  if (!email || !password || !name || !nickname) {
+    return res.status(400).json({ error: "필수 입력값을 모두 입력해주세요." });
   }
 
   try {
     // 중복 체크
-    const [rows] = await db.query("SELECT id FROM users WHERE email = ?", [email]);
+    const [rows] = await db.query("SELECT user_id FROM userInfo WHERE user_id = ?", [email]);
     if (rows.length > 0) {
       return res.status(400).json({ error: "이미 존재하는 이메일입니다." });
     }
@@ -37,8 +37,10 @@ router.post("/register", async (req, res) => {
     const hashed = await bcrypt.hash(password, 10);
 
     await db.query(
-      `INSERT INTO users (email, password) VALUES (?, ?)`,
-      [email, hashed]
+      `INSERT INTO userInfo 
+      (user_id, password, name, nickname, phone_number, create_date, useflag, login_fail_count, local, latitude, longitude)
+      VALUES (?, ?, ?, ?, ?, CURDATE(), 'Y', 0, ?, ?, ?)`,
+      [email, hashed, name, nickname, "", local, latitude, longitude]
     );
 
     res.json({ success: true, message: "회원가입 완료" });
@@ -52,43 +54,52 @@ router.post("/register", async (req, res) => {
 //   로그인
 
 router.post("/login", async (req, res) => {
-  // 프론트는 'email' 키로 아이디를 전송하지만, 여기서는 아이디/이메일 모두 허용
-  const { email: identifier, password } = req.body;
+  const { email, password } = req.body;
 
-  try {
-    const [rows] = await db.query(
-      "SELECT * FROM users WHERE email = ? OR SUBSTRING_INDEX(email, '@', 1) = ? ORDER BY id LIMIT 1",
-      [identifier, identifier]
+  const [rows] = await db.query(
+    "SELECT * FROM userInfo WHERE user_id = ?",
+    [email]
+  );
+
+  if (!rows.length)
+    return res.status(400).json({ error: "존재하지 않는 계정" });
+
+  const user = rows[0];
+
+  const ok = await bcrypt.compare(password, user.password);
+  if (!ok) {
+    // 실패하면 fail count +1
+    await db.query(
+      "UPDATE userInfo SET login_fail_count = login_fail_count + 1 WHERE user_id = ?",
+      [email]
     );
-
-    if (!rows.length)
-      return res.status(400).json({ error: "존재하지 않는 계정 (아이디/이메일 확인)" });
-
-    const user = rows[0];
-
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) {
-      return res.status(400).json({ error: "비밀번호 불일치" });
-    }
-
-    // 로그인 성공 → JWT 토큰 발급
-    const token = jwt.sign({ id: user.id, email: user.email }, "your-secret-key", {
-      expiresIn: "7d",
-    });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    res.json({ success: true, user: { id: user.id, email: user.email } });
-  } catch (err) {
-    console.error("로그인 에러:", err);
-    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+    return res.status(400).json({ error: "비밀번호 불일치" });
   }
+
+  // 로그인 성공 → 마지막 로그인 시간 업데이트
+  await db.query(
+    "UPDATE userInfo SET lastlogin_date = CURDATE(), login_fail_count = 0 WHERE user_id = ?",
+    [email]
+  );
+
+  const token = jwt.sign(
+    { user_id: user.user_id, nickname: user.nickname },
+    "SECRET_KEY",
+    { expiresIn: "1d" }
+  );
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    // don't set `domain` here so the cookie is host-only and will be set
+    // for the origin the browser sees (useful when proxying through Next.js)
+  });
+  // 프론트에서 token 값을 받아 localStorage에도 저장할 수 있도록 응답에 token 포함
+  res.json({ message: "로그인 성공", token });
 });
+
+
 
 //   로그아웃
 
@@ -96,6 +107,8 @@ router.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.json({ message: "로그아웃 완료" });
 });
+
+
 
 //   로그인 상태 유지
 
@@ -105,12 +118,29 @@ router.get("/me", (req, res) => {
   if (!token) return res.json({ user: null });
 
   try {
-    const decoded = jwt.verify(token, "your-secret-key");
+    const decoded = jwt.verify(token, "SECRET_KEY");
     res.json({ user: decoded });
   } catch {
     res.json({ user: null });
   }
 });
 
+
+// axios 예제
+
+router.post("/axios-login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const response = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/login", { email, password }, {
+      withCredentials: true,
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error("Axios 로그인 에러:", error);
+    res.status(500).json({ error: "서버 오류가 발생했습니다." });
+  }
+});
 
 export default router;
