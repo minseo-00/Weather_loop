@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Cassette from "@/entities/cassette/ui";
-import PlaylistGrid from "@/widgets/playlist-grid/ui/PlaylistGrid";
+// import PlaylistGrid from "@/widgets/playlist-grid/ui/PlaylistGrid";
 
 const GENRES = ["Pop", "Jazz", "Rock", "LoFi"];
 
@@ -33,8 +33,7 @@ export default function MainContent() {
         ))}
       </div>
 
-      {/* Spotify Playlists (below cassette grid) */}
-      <PlaylistGrid />
+        {/* Cassette/앨범/트랙/플레이리스트 그리드 완전 제거 */}
 
       {/* Optional: Subtle background grid pattern */}
       <style jsx>{`
