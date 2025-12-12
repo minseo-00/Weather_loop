@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import axios from "axios";
+import { BASE_URL, SPOTIFY_REDIRECT_URI } from "@/shared/api/config";
 import { useRouter } from "next/navigation";
 import Input from "@/shared/ui/Input";
 
@@ -16,17 +17,11 @@ export default function LoginPage() {
   const login = async () => {
     setError("");
     try {
-      const res = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/login", { email, password }, {
+      await axios.post(`${BASE_URL}/auth/login`, { email, password }, {
         withCredentials: true,
       });
-      setSuccess(true);
-      setTimeout(() => {
-        if (res.data.token) {
-          localStorage.setItem("token", res.data.token);
-        }
-        router.push("/main");
-        setTimeout(() => window.location.reload(), 300);
-      }, 1000);
+      // 쿠키가 설정되었으므로 즉시 메인으로 이동
+      router.replace("/main");
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
@@ -37,18 +32,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#FFF9E8] to-[#FAF3E8] px-4 py-8">
       
       {/* 상단 뒤로가기 */}
       <div
-        className="absolute top-6 left-6 cursor-pointer text-xl"
-        onClick={() => router.back()}   // ← 뒤로가기 작동
+        className="absolute top-6 left-6 cursor-pointer text-xl text-gray-700 hover:text-gray-900 transition"
+        onClick={() => router.back()}
+        aria-label="뒤로가기"
       >
-        ←
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </div>
 
       {/* 로그인 이미지 */}
-      <div className="w-64 h-64 mb-8 flex items-center justify-center">
+      <div className="w-48 h-48 mb-6 flex items-center justify-center">
         <img
           src="/images/login-art.png"
           alt="Login Art"
@@ -57,9 +53,10 @@ export default function LoginPage() {
       </div>
 
       {/* 로그인 박스 */}
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg space-y-6">
+      <div className="w-full max-w-md p-8 bg-white/90 backdrop-blur-sm rounded-2xl border border-[#E8DED0] shadow-lg space-y-5">
         <div className="space-y-1">
-          <h1 className="text-xl font-bold">아이디와 비밀번호를 입력해주세요.</h1>
+          <h1 className="text-xl font-bold text-gray-900">로그인</h1>
+          <p className="text-sm text-gray-500">아이디와 비밀번호를 입력해주세요</p>
         </div>
         {error && (
           <div className="text-red-500 text-center font-semibold mb-2">{error}</div>
@@ -69,10 +66,10 @@ export default function LoginPage() {
         )}
         {/* 아이디 */}
         <Input
-          type="email"
+          type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="이메일을 입력하세요"
+          placeholder="아이디를 입력하세요"
         />
         {/* 비밀번호 */}
         <Input
@@ -95,7 +92,7 @@ export default function LoginPage() {
         {/* 로그인 버튼 */}
         <button
           onClick={login}
-          className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+          className="w-full py-3 bg-gradient-to-r from-[#AEC9FF] to-[#FFD6E8] text-gray-800 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 hover:scale-105"
         >
           로그인
         </button>
@@ -103,7 +100,7 @@ export default function LoginPage() {
         <button
           onClick={() => {
             const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID || "9a0c19a7e9f24b069ecf7fc7945251a3";
-            const redirectUri = encodeURIComponent("https://refringent-bioecological-keisha.ngrok-free.dev/api/auth/callback");
+            const redirectUri = encodeURIComponent(SPOTIFY_REDIRECT_URI || "");
             const scope = encodeURIComponent("playlist-read-private playlist-read-collaborative user-read-email user-read-private streaming user-read-playback-state user-modify-playback-state");
             const state = Math.random().toString(36).substring(2, 15);
             // state를 쿠키에 저장 (path=/, 세션 쿠키)
@@ -111,7 +108,7 @@ export default function LoginPage() {
             const url = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
             window.location.href = url;
           }}
-          className="w-full py-3 mt-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition"
+          className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
         >
           Spotify로 로그인
         </button>

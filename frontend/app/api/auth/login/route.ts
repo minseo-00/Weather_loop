@@ -7,7 +7,11 @@ const SCOPES = [
   'user-read-private',
   'playlist-read-private',
   'playlist-read-collaborative',
-  'user-library-read'
+  'user-library-read',
+  // Needed for Web Playback SDK full-track playback and control
+  'streaming',
+  'user-modify-playback-state',
+  'user-read-playback-state'
 ].join(' ')
 
 export async function GET(request: Request) {

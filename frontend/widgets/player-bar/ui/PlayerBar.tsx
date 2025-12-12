@@ -46,10 +46,16 @@ export default function PlayerBar() {
         onClick={toggle}
         className="
           w-14 h-14 rounded-full flex items-center justify-center
-          bg-white/20 border border-white/30 text-white text-2xl
+          bg-white/20 border border-white/30 text-white
         "
+        aria-label={playing ? '일시정지' : '재생'}
+        title={playing ? '일시정지' : '재생'}
       >
-        {playing ? "⏸" : "▶"}
+        {playing ? (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="7" y="5" width="3" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="3" height="14" rx="1" fill="currentColor"/></svg>
+        ) : (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 5v14l10-7z" fill="currentColor"/></svg>
+        )}
       </button>
 
       {/* Favorites 버튼 */}
@@ -59,7 +65,7 @@ export default function PlayerBar() {
           bg-white/15 border border-white/30
         "
       >
-        ⭐ Favorites
+        Favorites
       </button>
     </div>
   );

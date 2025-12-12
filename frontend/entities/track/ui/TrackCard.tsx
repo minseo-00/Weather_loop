@@ -24,10 +24,10 @@ export default function TrackCard({ track, onRemove }: TrackCardProps) {
       </div>
       {onRemove && (
         <button
-          className="absolute top-2 right-2 text-red-500 text-2xl"
+          className="absolute top-2 right-2 text-sm bg-white/90 border border-red-300 text-red-600 rounded px-2 py-1"
           onClick={() => onRemove(track.music_id)}
         >
-          ♥
+          삭제
         </button>
       )}
     </div>

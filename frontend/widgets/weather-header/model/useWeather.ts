@@ -20,7 +20,7 @@ export function useWeather(): HeaderState {
   const [state, setState] = useState<HeaderState>({
     time: formatTime(new Date()),
     temp: 17,
-    icon: "🌧️",
+    icon: "",
   });
 
   useEffect(() => {

@@ -47,18 +47,18 @@ export async function GET(request: Request) {
     const res = NextResponse.json({ ok: true })
     if (data.access_token) {
       res.cookies.set('spotify_access_token', data.access_token, {
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === 'production',
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'none',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',
         maxAge: data.expires_in ?? 3600
       })
     }
     if (data.refresh_token) {
       res.cookies.set('spotify_refresh_token', data.refresh_token, {
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === 'production',
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'none',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/'
       })
     }

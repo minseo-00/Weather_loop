@@ -13,8 +13,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://refringent-bioecological-keisha.ngrok-free.dev"
-    ],
+      process.env.FRONTEND_URL
+    ].filter(Boolean),
     credentials: true
   })
 );
@@ -56,12 +56,14 @@ app.get("/api/weather", async (req, res) => {
 // Start server only after DB connection test
 testConnection()
   .then(() => {
-    app.listen(3001, () => {
-      console.log("서버 실행 중 (DB 연결 확인됨)");
-    });
+    console.log("DB 연결 확인됨");
   })
   .catch((err) => {
-    console.error('시작 중 DB 연결 실패 — 서버를 시작하지 않습니다.')
-    console.error(err)
-    process.exit(1)
+    console.warn('DB 연결 실패 - DB 기능 사용 불가 (Spotify 기능은 정상 작동)')
+    console.error(err.message)
+  })
+  .finally(() => {
+    app.listen(3001, () => {
+      console.log("서버 실행 중 on http://localhost:3001");
+    });
   })

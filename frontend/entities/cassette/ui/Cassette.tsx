@@ -6,9 +6,10 @@ interface CassetteProps {
   id: string;
   genre: string;
   rotation: number;
+  onSelect?: (genre: string) => void;
 }
 
-export default function Cassette({ id, genre }: CassetteProps) {
+export default function Cassette({ id, genre, onSelect }: CassetteProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [rotation, setRotation] = useState(0);
 
@@ -24,20 +25,42 @@ export default function Cassette({ id, genre }: CassetteProps) {
 
   const handleDragEnd = () => {
     setIsDragging(false);
+    // 드래그 완료 시 해당 장르 선택
+    if (onSelect) {
+      onSelect(genre);
+    }
   };
+
+  const handleClick = () => {
+    // 클릭 시 해당 장르 선택
+    if (onSelect) {
+      onSelect(genre);
+    }
+  };
+
+  // 장르별 파스텔 컬러 매핑
+  const genreColors: Record<string, string> = {
+    Pop: "#FFE8A3",      // 파스텔 옐로우
+    Rock: "#FFC7B5",     // 파스텔 코랄
+    Jazz: "#D4E7FF",     // 파스텔 스카이 블루
+    LoFi: "#D9F7E6",     // 파스텔 민트
+  };
+
+  const cassetteColor = genreColors[genre] || "#FFE8A3";
 
   return (
     <div
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onClick={handleClick}
       className={`w-[260px] h-[140px] cursor-grab active:cursor-grabbing flex items-center justify-center select-none transition-all duration-200 ${isDragging ? "opacity-50 scale-95" : "hover:scale-105"}`}
       style={{ transform: `rotate(${rotation}deg)` }}
     >
       {/* 감성 카세트 테이프 SVG */}
       <svg width="260" height="140" viewBox="0 0 260 140" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* 본체 */}
-        <rect x="20" y="25" width="220" height="90" rx="18" fill="#222" stroke="#555" strokeWidth="3" />
+        <rect x="20" y="25" width="220" height="90" rx="18" fill={cassetteColor} stroke="#B8A890" strokeWidth="3" />
         {/* 라벨 */}
         <rect x="55" y="50" width="150" height="40" rx="8" fill="#f5f5f5" />
         <text x="130" y="75" textAnchor="middle" fontSize="28" fontWeight="bold" fill="#333" style={{fontFamily:'monospace'}}>{genre}</text>

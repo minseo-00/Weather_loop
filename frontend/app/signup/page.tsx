@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { BASE_URL } from "@/shared/api/config";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function SignUpPage() {
         latitude: form.latitude ?? 0,
         longitude: form.longitude ?? 0,
       };
-      const res = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/register", payload, {
+      const res = await axios.post(`${BASE_URL}/auth/register`, payload, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -54,37 +55,38 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      {/* 👉 뒤로가기 버튼 */}
+    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#FFF9E8] to-[#FAF3E8] px-4 py-8">
+      {/* 뒤로가기 버튼 */}
       <div
-        className="absolute top-6 left-6 cursor-pointer text-xl"
+        className="absolute top-6 left-6 cursor-pointer text-xl text-gray-700 hover:text-gray-900 transition"
         onClick={() => router.back()}
+        aria-label="뒤로가기"
       >
-        ←
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </div>
-      <div className="w-64 h-64 mb-8 flex items-center justify-center">
+      <div className="w-48 h-48 mb-6 flex items-center justify-center">
         <img
           src="/images/login-art.png"
           alt="Signup Art"
           className="w-full h-full object-contain"
         />
       </div>
-      <div className="w-full max-w-2xl bg-white p-10 rounded-2xl shadow-lg space-y-8">
-        <h1 className="text-3xl font-bold text-center">회원가입</h1>
+      <div className="w-full max-w-2xl bg-white/90 backdrop-blur-sm p-10 rounded-2xl border border-[#E8DED0] shadow-lg space-y-6">
+        <h1 className="text-2xl font-bold text-center text-gray-900">회원가입</h1>
         {error && (
           <div className="text-red-500 text-center font-semibold mb-2">{error}</div>
         )}
         {success && (
           <div className="text-green-600 text-center font-semibold mb-2">회원가입 성공! 로그인 페이지로 이동합니다.</div>
         )}
-        {/* 이메일 */}
+        {/* 아이디 */}
         <div className="flex flex-col space-y-2">
-          <label className="font-medium text-gray-700">이메일</label>
+          <label className="font-medium text-gray-700">아이디</label>
           <input
-            type="email"
+            type="text"
             value={form.email}
             onChange={(e) => handleChange("email", e.target.value)}
-            placeholder="이메일을 입력해주세요"
+            placeholder="아이디를 입력해주세요"
             className="border rounded-lg p-3"
           />
         </div>
@@ -137,7 +139,7 @@ export default function SignUpPage() {
         {/* 회원가입 버튼 */}
         <button
           onClick={register}
-          className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+          className="w-full py-3 bg-gradient-to-r from-[#AEC9FF] to-[#FFD6E8] text-gray-800 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 hover:scale-105"
         >
           회원가입
         </button>

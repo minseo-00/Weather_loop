@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Neutral warm theme */
+  --background: #FAF8F6;
+  --foreground: #2B2B2B;
+  --surface: #FFFFFF;
+  --muted: #F2EFEA;
+  --border: #E7E2DC;
+  --accent: #E8D6C8;
+  --accent-strong: #D8CFC4;
 }
 
 @theme inline {
@@ -23,4 +29,26 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.muted {
+  background: var(--muted);
+}
+
+.btn-accent {
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  color: #2B2B2B;
+}
+
+.elev-1 {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.elev-2 {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }

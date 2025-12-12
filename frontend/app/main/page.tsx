@@ -9,28 +9,24 @@ import { useState } from "react";
 
 export default function MainPage() {
   const [weather, setWeather] = useState<string>("");
+  const [selectedGenre, setSelectedGenre] = useState<string>("weather");
+  
+  // UI는 중립 톤으로 고정 (날씨 배경/하늘색 제거)
+
   return (
-    <div
-      className="flex flex-col h-screen w-full overflow-hidden"
-      style={{
-        backgroundColor: '#f5ecd7',
-        backgroundImage: 'url(https://www.transparenttextures.com/patterns/wood-pattern.png)',
-        backgroundRepeat: 'repeat',
-        color: '#7c5c3a',
-      }}
-    >
+    <div className="flex flex-col h-screen w-full overflow-hidden relative">
+
       {/* Weather Header - Full Width Top */}
       <WeatherHeader onWeatherChange={setWeather} />
 
       {/* Main Layout - Sidebar + Content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative z-10">
         {/* Left Sidebar */}
-        <Sidebar weather={weather} />
+        <Sidebar weather={weather} selectedGenre={selectedGenre} onGenreChange={setSelectedGenre} />
 
         {/* Main Content Area */}
-        <MainContent />
+        <MainContent onCassetteSelect={setSelectedGenre} />
       </div>
-
     </div>
   );
 }

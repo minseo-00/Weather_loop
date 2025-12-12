@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePlayer } from "@/widgets/player-bar/context/PlayerProvider";
+import { BASE_URL } from "@/shared/api/config";
 
 type Playlist = {
   id: string;
@@ -21,7 +22,7 @@ export default function PlaylistGrid() {
     let mounted = true;
     async function fetchPlaylists() {
       try {
-        const res = await fetch('https://refringent-bioecological-keisha.ngrok-free.dev/api/spotify/playlists', { credentials: 'include' });
+        const res = await fetch(`${BASE_URL}/api/spotify/playlists`, { credentials: 'include' });
         if (!res.ok) {
           setPlaylists([]);
           setLoading(false);
@@ -53,7 +54,7 @@ export default function PlaylistGrid() {
             setOpenPlaylist(p);
             // fetch tracks
             try {
-              const res = await fetch(`https://refringent-bioecological-keisha.ngrok-free.dev/api/spotify/playlists/${p.id}/tracks`, { credentials: 'include' });
+              const res = await fetch(`${BASE_URL}/api/spotify/playlists/${p.id}/tracks`, { credentials: 'include' });
               if (!res.ok) return setTracks([]);
               const json = await res.json();
               setTracks(json.items || []);
@@ -104,7 +105,7 @@ export default function PlaylistGrid() {
                         preview_url: tr.preview_url,
                         albumImage: tr.album?.images?.[0]?.url
                       })}>
-                        ▶ 재생
+                        재생
                       </button>
                     </div>
                   </li>
