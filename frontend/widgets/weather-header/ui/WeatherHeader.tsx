@@ -49,8 +49,9 @@ export default function WeatherHeader() {
       // 테스트용: 싱가포르(비가 자주 오는 지역) 위도/경도
       const latitude = 1.3521;
       const longitude = 103.8198;
-      axios.get("/api/weather", {
-        params: { lat: latitude, lon: longitude }
+      axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/api/weather", {
+        params: { lat: latitude, lon: longitude },
+        withCredentials: true
       }).then(res => {
         const weatherData = res.data;
         const iconValue = weatherData.weather?.[0]?.icon || "";
@@ -70,7 +71,7 @@ export default function WeatherHeader() {
     // 1초마다 /auth/me로 로그인 상태 확인
     const checkLoginStatus = async () => {
       try {
-        const res = await axios.get("/auth/me", { withCredentials: true });
+        const res = await axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/auth/me", { withCredentials: true });
         setIsLoggedIn(!!res.data.user);
         console.log("WeatherHeader.tsx:23 로그인 상태:", !!res.data.user);
       } catch (err) {
@@ -86,7 +87,7 @@ export default function WeatherHeader() {
   // 로그아웃
   const handleLogout = () => {
     localStorage.removeItem("token");
-    axios.post("/auth/logout", {}, { withCredentials: true })
+    axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/logout", {}, { withCredentials: true })
       .then(() => {
         setIsLoggedIn(false);
         setMenuOpen(false);
@@ -94,7 +95,7 @@ export default function WeatherHeader() {
       })
       .finally(() => {
         // 즉시 /auth/me 호출하여 UI 갱신
-        axios.get("/auth/me", { withCredentials: true })
+        axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/auth/me", { withCredentials: true })
           .then(res => setIsLoggedIn(!!res.data.user));
       });
   };

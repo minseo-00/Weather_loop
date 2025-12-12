@@ -32,7 +32,7 @@ export default function SignUpPage() {
         latitude: form.latitude ?? 0,
         longitude: form.longitude ?? 0,
       };
-      const res = await axios.post("http://localhost:3001/auth/register", payload, {
+      const res = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/register", payload, {
         withCredentials: true,
       });
       if (res.data.success) {
