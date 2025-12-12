@@ -16,9 +16,7 @@ export default function LoginPage() {
   const login = async () => {
     setError("");
     try {
-      const res = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/login", { email, password }, {
-        withCredentials: true,
-      });
+      const res = await axios.post("/api/auth/signin", { email, password });
       setSuccess(true);
       setTimeout(() => {
         if (res.data.token) {

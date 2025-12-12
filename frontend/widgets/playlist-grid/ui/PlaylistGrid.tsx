@@ -21,7 +21,7 @@ export default function PlaylistGrid() {
     let mounted = true;
     async function fetchPlaylists() {
       try {
-        const res = await fetch('https://refringent-bioecological-keisha.ngrok-free.dev/api/spotify/playlists', { credentials: 'include' });
+        const res = await fetch('/api/spotify/playlists', { credentials: 'include' });
         if (!res.ok) {
           setPlaylists([]);
           setLoading(false);
@@ -53,7 +53,7 @@ export default function PlaylistGrid() {
             setOpenPlaylist(p);
             // fetch tracks
             try {
-              const res = await fetch(`https://refringent-bioecological-keisha.ngrok-free.dev/api/spotify/playlists/${p.id}/tracks`, { credentials: 'include' });
+              const res = await fetch(`/api/spotify/playlists/${p.id}/tracks`, { credentials: 'include' });
               if (!res.ok) return setTracks([]);
               const json = await res.json();
               setTracks(json.items || []);
