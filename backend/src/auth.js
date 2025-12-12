@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "http://127.0.0.1:3000",
     credentials: true,
   })
 );
@@ -89,7 +89,8 @@ router.post("/login", async (req, res) => {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    domain: "localhost"
+    // don't set `domain` here so the cookie is host-only and will be set
+    // for the origin the browser sees (useful when proxying through Next.js)
   });
   // 프론트에서 token 값을 받아 localStorage에도 저장할 수 있도록 응답에 token 포함
   res.json({ message: "로그인 성공", token });

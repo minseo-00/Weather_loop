@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Cassette from "@/entities/cassette/ui";
+import PlaylistGrid from "@/widgets/playlist-grid/ui/PlaylistGrid";
 
 const GENRES = ["Pop", "Jazz", "Rock", "LoFi"];
 
@@ -31,6 +32,9 @@ export default function MainContent() {
           <Cassette key={index} id={`cassette-${index}`} genre={genre} rotation={rotations[index]} />
         ))}
       </div>
+
+      {/* Spotify Playlists (below cassette grid) */}
+      <PlaylistGrid />
 
       {/* Optional: Subtle background grid pattern */}
       <style jsx>{`

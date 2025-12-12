@@ -35,6 +35,8 @@ export async function GET(request: Request) {
   res.cookies.set('spotify_auth_state', state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
+    // In dev, use 'lax' so the state cookie is sent on the top-level redirect back from Spotify.
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     path: '/',
     maxAge: 300
   })
