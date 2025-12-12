@@ -2,13 +2,7 @@
 
 import { useMemo } from "react";
 import Cassette from "@/entities/cassette/ui";
-<<<<<<< HEAD
 import { useWeatherContext } from "@/shared/context/WeatherContext";
-=======
-// import PlaylistGrid from "@/widgets/playlist-grid/ui/PlaylistGrid";
-
-const GENRES = ["Pop", "Jazz", "Rock", "LoFi"];
->>>>>>> 93280b557983173712d8f4cbcc9c33bc0f1ae09a
 
 export default function MainContent() {
   const { recommendedGenres, weather, loading } = useWeatherContext();

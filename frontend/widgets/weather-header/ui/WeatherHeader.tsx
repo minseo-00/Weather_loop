@@ -47,7 +47,6 @@ export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (
       return () => clearInterval(interval);
     }, []);
 
-<<<<<<< HEAD
     // 위치 기반 날씨 정보 가져오기
     useEffect(() => {
       const fetchWeather = (lat: number, lon: number) => {
@@ -85,62 +84,6 @@ export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (
         fetchWeather(35.8714, 128.6014);
       }
     }, []);
-=======
-  // 위치 기반 날씨 정보 가져오기
-  useEffect(() => {
-    // 대구 기본 좌표
-    const DEFAULT_LAT = 35.8714;
-    const DEFAULT_LON = 128.6014;
-
-    const fetchWeather = (latitude: number, longitude: number, locationName: string) => {
-      console.log(`날씨 조회: ${locationName} (${latitude}, ${longitude})`);
-      axios.get("/api/weather", {
-        params: { lat: latitude, lon: longitude }
-      }).then(res => {
-        const weatherData = res.data;
-        console.log("날씨 데이터:", weatherData);
-        const iconValue = weatherData.weather?.[0]?.icon || "";
-        setWeather(weatherData.weather?.[0]?.main || "");
-        setTemp(Math.round(weatherData.main?.temp));
-        setIcon(iconValue);
-        if (onWeatherChange) onWeatherChange(weatherData.weather?.[0]?.main || "");
-      }).catch((err) => {
-        console.error("날씨 조회 실패:", err);
-        setWeather("");
-        setTemp(null);
-        setIcon("");
-        if (onWeatherChange) onWeatherChange("");
-      });
-    };
-
-    // 위치 권한 요청
-    if (typeof window !== 'undefined' && navigator.geolocation) {
-      console.log("위치 권한 요청 중...");
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // 위치 허용 시 사용자 위치 사용
-          const { latitude, longitude } = position.coords;
-          console.log("위치 권한 허용됨:", latitude, longitude);
-          fetchWeather(latitude, longitude, "사용자 위치");
-        },
-        (error) => {
-          // 위치 거부 또는 에러 시 대구 기본값 사용
-          console.log("위치 권한 거부됨:", error.code, error.message);
-          fetchWeather(DEFAULT_LAT, DEFAULT_LON, "대구 (기본값)");
-        },
-        {
-          enableHighAccuracy: false,
-          timeout: 5000,
-          maximumAge: 300000 // 5분간 캐시
-        }
-      );
-    } else {
-      // Geolocation 미지원 시 대구 기본값 사용
-      console.log("Geolocation 미지원, 대구 기본값 사용");
-      fetchWeather(DEFAULT_LAT, DEFAULT_LON, "대구 (기본값)");
-    }
-  }, []);
->>>>>>> 93280b557983173712d8f4cbcc9c33bc0f1ae09a
 
 
   // 토큰 유효성 검사
