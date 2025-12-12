@@ -47,6 +47,45 @@ export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (
       return () => clearInterval(interval);
     }, []);
 
+<<<<<<< HEAD
+    // 위치 기반 날씨 정보 가져오기
+    useEffect(() => {
+      const fetchWeather = (lat: number, lon: number) => {
+        axios.get("http://localhost:3001/api/weather", {
+          params: { lat, lon }
+        }).then(res => {
+          const weatherData = res.data;
+          const iconValue = weatherData.weather?.[0]?.icon || "";
+          console.log("WeatherHeader.tsx icon:", iconValue);
+          setWeather(weatherData.weather?.[0]?.main || "");
+          setTemp(Math.round(weatherData.main?.temp));
+          setIcon(iconValue);
+        }).catch(() => {
+          setWeather("");
+          setTemp(null);
+          setIcon("");
+        });
+      };
+
+      // 사용자 위치 가져오기
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            fetchWeather(latitude, longitude);
+          },
+          (error) => {
+            console.error("위치 정보 에러:", error);
+            // 기본 위치 (대구)로 날씨 가져오기
+            fetchWeather(35.8714, 128.6014);
+          }
+        );
+      } else {
+        // Geolocation 미지원 시 대구 기본값
+        fetchWeather(35.8714, 128.6014);
+      }
+    }, []);
+=======
   // 위치 기반 날씨 정보 가져오기
   useEffect(() => {
     // 대구 기본 좌표
@@ -101,6 +140,7 @@ export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (
       fetchWeather(DEFAULT_LAT, DEFAULT_LON, "대구 (기본값)");
     }
   }, []);
+>>>>>>> 93280b557983173712d8f4cbcc9c33bc0f1ae09a
 
 
   // 토큰 유효성 검사
