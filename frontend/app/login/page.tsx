@@ -16,7 +16,7 @@ export default function LoginPage() {
   const login = async () => {
     setError("");
     try {
-      const res = await axios.post("http://localhost:3001/auth/login", { email, password }, {
+      const res = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/login", { email, password }, {
         withCredentials: true,
       });
       setSuccess(true);
@@ -98,6 +98,22 @@ export default function LoginPage() {
           className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
         >
           로그인
+        </button>
+        {/* Spotify 로그인 버튼 */}
+        <button
+          onClick={() => {
+            const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID || "9a0c19a7e9f24b069ecf7fc7945251a3";
+            const redirectUri = encodeURIComponent("https://refringent-bioecological-keisha.ngrok-free.dev/api/auth/callback");
+            const scope = encodeURIComponent("playlist-read-private playlist-read-collaborative user-read-email user-read-private streaming user-read-playback-state user-modify-playback-state");
+            const state = Math.random().toString(36).substring(2, 15);
+            // state를 쿠키에 저장 (path=/, 세션 쿠키)
+            document.cookie = `spotify_auth_state=${state}; path=/;`;
+            const url = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+            window.location.href = url;
+          }}
+          className="w-full py-3 mt-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition"
+        >
+          Spotify로 로그인
         </button>
         {/* 아이디/비번 찾기 + 회원가입 */}
         <div className="flex justify-center gap-6 text-sm text-gray-500 mt-2">

@@ -9,7 +9,10 @@ const router = express.Router();
 
 router.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://refringent-bioecological-keisha.ngrok-free.dev"
+    ],
     credentials: true,
   })
 );
@@ -89,7 +92,8 @@ router.post("/login", async (req, res) => {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    domain: "localhost"
+    // don't set `domain` here so the cookie is host-only and will be set
+    // for the origin the browser sees (useful when proxying through Next.js)
   });
   // 프론트에서 token 값을 받아 localStorage에도 저장할 수 있도록 응답에 token 포함
   res.json({ message: "로그인 성공", token });
@@ -128,7 +132,7 @@ router.post("/axios-login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const response = await axios.post("http://localhost:3001/auth/login", { email, password }, {
+    const response = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/login", { email, password }, {
       withCredentials: true,
     });
 
