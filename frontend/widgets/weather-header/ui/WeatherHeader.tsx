@@ -47,50 +47,65 @@ export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (
       return () => clearInterval(interval);
     }, []);
 
-  // 위치 기반 날씨 정보 가져오기
-  useEffect(() => {
-    const latitude = 1.3521;
-    const longitude = 103.8198;
-    axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/api/weather", {
-      params: { lat: latitude, lon: longitude },
-      withCredentials: true
-    }).then(res => {
-      const weatherData = res.data;
-      const iconValue = weatherData.weather?.[0]?.icon || "";
-      setWeather(weatherData.weather?.[0]?.main || "");
-      setTemp(Math.round(weatherData.main?.temp));
-      setIcon(iconValue);
-      if (onWeatherChange) onWeatherChange(weatherData.weather?.[0]?.main || "");
-    }).catch(() => {
-      setWeather("");
-      setTemp(null);
-      setIcon("");
-      if (onWeatherChange) onWeatherChange("");
-    });
-  }, []);
+    // 위치 기반 날씨 정보 가져오기
+    useEffect(() => {
+      const fetchWeather = (lat: number, lon: number) => {
+        axios.get("http://localhost:3001/api/weather", {
+          params: { lat, lon }
+        }).then(res => {
+          const weatherData = res.data;
+          const iconValue = weatherData.weather?.[0]?.icon || "";
+          console.log("WeatherHeader.tsx icon:", iconValue);
+          setWeather(weatherData.weather?.[0]?.main || "");
+          setTemp(Math.round(weatherData.main?.temp));
+          setIcon(iconValue);
+        }).catch(() => {
+          setWeather("");
+          setTemp(null);
+          setIcon("");
+        });
+      };
+
+      // 사용자 위치 가져오기
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            fetchWeather(latitude, longitude);
+          },
+          (error) => {
+            console.error("위치 정보 에러:", error);
+            // 기본 위치 (대구)로 날씨 가져오기
+            fetchWeather(35.8714, 128.6014);
+          }
+        );
+      } else {
+        // Geolocation 미지원 시 대구 기본값
+        fetchWeather(35.8714, 128.6014);
+      }
+    }, []);
+
 
   // 토큰 유효성 검사
   useEffect(() => {
-    // 1초마다 /auth/me로 로그인 상태 확인
+    // 로그인 상태 확인 (30초마다)
     const checkLoginStatus = async () => {
       try {
-        const res = await axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/auth/me", { withCredentials: true });
+        const res = await axios.get("/api/auth/me");
         setIsLoggedIn(!!res.data.user);
-        console.log("WeatherHeader.tsx:23 로그인 상태:", !!res.data.user);
       } catch (err) {
         setIsLoggedIn(false);
-        console.log("WeatherHeader.tsx:23 로그인 상태: false (에러)");
       }
     };
     checkLoginStatus();
-    const interval = setInterval(checkLoginStatus, 1000);
+    const interval = setInterval(checkLoginStatus, 30000); // 30초
     return () => clearInterval(interval);
   }, []);
 
   // 로그아웃
   const handleLogout = () => {
     localStorage.removeItem("token");
-    axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/logout", {}, { withCredentials: true })
+    axios.post("/api/auth/logout", {})
       .then(() => {
         setIsLoggedIn(false);
         setMenuOpen(false);
@@ -98,7 +113,7 @@ export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (
       })
       .finally(() => {
         // 즉시 /auth/me 호출하여 UI 갱신
-        axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/auth/me", { withCredentials: true })
+        axios.get("/api/auth/me")
           .then(res => setIsLoggedIn(!!res.data.user));
       });
   };

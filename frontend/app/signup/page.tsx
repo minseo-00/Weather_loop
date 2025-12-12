@@ -32,9 +32,7 @@ export default function SignUpPage() {
         latitude: form.latitude ?? 0,
         longitude: form.longitude ?? 0,
       };
-      const res = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/register", payload, {
-        withCredentials: true,
-      });
+      const res = await axios.post("/api/auth/register", payload);
       if (res.data.success) {
         setSuccess(true);
         setTimeout(() => {
@@ -43,9 +41,11 @@ export default function SignUpPage() {
       } else {
         setError(res.data.message || "회원가입에 실패했습니다.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("회원가입 에러:", err);
-      setError("서버 오류가 발생했습니다.");
+      console.error("응답 데이터:", err.response?.data);
+      const msg = err.response?.data?.error || "서버 오류가 발생했습니다.";
+      setError(msg);
     }
   };
 

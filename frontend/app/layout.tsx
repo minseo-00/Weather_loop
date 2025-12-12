@@ -1,11 +1,14 @@
 import "./globals.css";
-import { PlayerProvider } from "@/widgets/player-bar/context/PlayerProvider";
+import { WeatherProvider } from "@/shared/context/WeatherContext";
+
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <PlayerProvider>{children}</PlayerProvider>
+        <WeatherProvider>
+          {children}
+        </WeatherProvider>
       </body>
     </html>
   );
