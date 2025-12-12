@@ -6,31 +6,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function WeatherHeader() {
+export default function WeatherHeader({ onWeatherChange }: { onWeatherChange?: (weather: string) => void }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
-    // 날씨 상태
-    const [weather, setWeather] = useState<string>("");
-    const [temp, setTemp] = useState<number | null>(null);
-    const [icon, setIcon] = useState<string>("");
-    const [time, setTime] = useState<string>("");
+  // 날씨 상태
+  const [weather, setWeather] = useState<string>("");
+  const [temp, setTemp] = useState<number | null>(null);
+  const [icon, setIcon] = useState<string>("");
+  const [time, setTime] = useState<string>("");
   // 시연용: 날씨 강제 변경 함수
   const setDemoWeather = (type: "clear" | "rain" | "snow") => {
+    let newWeather = "";
     if (type === "clear") {
-      setWeather("Clear");
+      newWeather = "Clear";
       setIcon("01d");
       setTemp(25);
     } else if (type === "rain") {
-      setWeather("Rain");
+      newWeather = "Rain";
       setIcon("10d");
       setTemp(18);
     } else if (type === "snow") {
-      setWeather("Snow");
+      newWeather = "Snow";
       setIcon("13d");
       setTemp(-2);
     }
+    setWeather(newWeather);
+    if (onWeatherChange) onWeatherChange(newWeather);
   };
 
     // 시간 갱신
@@ -44,27 +47,27 @@ export default function WeatherHeader() {
       return () => clearInterval(interval);
     }, []);
 
-    // 위치 기반 날씨 정보 가져오기
-    useEffect(() => {
-      // 테스트용: 싱가포르(비가 자주 오는 지역) 위도/경도
-      const latitude = 1.3521;
-      const longitude = 103.8198;
-      axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/api/weather", {
-        params: { lat: latitude, lon: longitude },
-        withCredentials: true
-      }).then(res => {
-        const weatherData = res.data;
-        const iconValue = weatherData.weather?.[0]?.icon || "";
-        console.log("WeatherHeader.tsx icon:", iconValue);
-        setWeather(weatherData.weather?.[0]?.main || "");
-        setTemp(Math.round(weatherData.main?.temp));
-        setIcon(iconValue);
-      }).catch(() => {
-        setWeather("");
-        setTemp(null);
-        setIcon("");
-      });
-    }, []);
+  // 위치 기반 날씨 정보 가져오기
+  useEffect(() => {
+    const latitude = 1.3521;
+    const longitude = 103.8198;
+    axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/api/weather", {
+      params: { lat: latitude, lon: longitude },
+      withCredentials: true
+    }).then(res => {
+      const weatherData = res.data;
+      const iconValue = weatherData.weather?.[0]?.icon || "";
+      setWeather(weatherData.weather?.[0]?.main || "");
+      setTemp(Math.round(weatherData.main?.temp));
+      setIcon(iconValue);
+      if (onWeatherChange) onWeatherChange(weatherData.weather?.[0]?.main || "");
+    }).catch(() => {
+      setWeather("");
+      setTemp(null);
+      setIcon("");
+      if (onWeatherChange) onWeatherChange("");
+    });
+  }, []);
 
   // 토큰 유효성 검사
   useEffect(() => {

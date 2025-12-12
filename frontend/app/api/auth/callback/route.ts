@@ -87,7 +87,7 @@ export async function GET(request: Request) {
     if (data.access_token) {
       console.log('DEBUG will set spotify_access_token cookie, expires_in=', data.expires_in)
       cookieActions.push(() => finalRes.cookies.set('spotify_access_token', data.access_token, {
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === 'production',
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',
@@ -100,7 +100,7 @@ export async function GET(request: Request) {
     if (data.refresh_token) {
       console.log('DEBUG will set spotify_refresh_token cookie')
       cookieActions.push(() => finalRes.cookies.set('spotify_refresh_token', data.refresh_token, {
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === 'production',
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/'

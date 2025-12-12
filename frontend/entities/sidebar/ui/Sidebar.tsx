@@ -1,135 +1,251 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { searchSpotifyTracks } from "@/shared/api/spotifySearch.api";
+import { loadSpotifySDK, createSpotifyPlayer } from "@/shared/spotifyPlayer";
 
-export default function Sidebar() {
+interface SidebarProps {
+  weather?: string;
+}
+
+export default function Sidebar({ weather: weatherProp }: SidebarProps) {
   const [mounted, setMounted] = useState(false);
-  // Cassette 플레이어 UI 상태 (곡목록 없음)
-  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
-  const genreSongs: Record<string, string[]> = {
-    Pop: ["Love Dive - IVE", "Ditto - NewJeans", "Hype Boy - NewJeans"],
-    Jazz: ["Autumn Leaves - Bill Evans", "Take Five - Dave Brubeck", "Blue in Green - Miles Davis"],
-    Rock: ["Bohemian Rhapsody - Queen", "Stairway to Heaven - Led Zeppelin", "Hotel California - Eagles"],
-    LoFi: ["Snowman - WYS", "Chillhop Essentials - Various Artists", "Dreams - Joakim Karud"],
+
+  // 장르별 추천곡 mock 데이터 (Spotify 트랙 id 포함, 추후 확장)
+  const GENRES = [
+    { key: "Indie", label: "인디밴드" },
+    { key: "Pop", label: "대중가요" },
+    { key: "HipHop", label: "힙합" },
+    { key: "Jazz", label: "재즈" },
+  ];
+  const genreTracks: Record<string, any> = {
+    Indie: [
+      { id: "1", title: "밤하늘의 별을", artist: "양정승", image: "https://i.scdn.co/image/ab67616d0000b273b2e7e7e7e7e7e7e7e7e7e7e7", preview_url: "" },
+      { id: "2", title: "벚꽃 엔딩", artist: "버스커버스커", image: "https://i.scdn.co/image/ab67616d0000b273b2e7e7e7e7e7e7e7e7e7e7e7", preview_url: "" },
+    ],
+    Pop: [
+      { id: "3", title: "Love Dive", artist: "IVE", image: "https://i.scdn.co/image/ab67616d0000b273b2e7e7e7e7e7e7e7e7e7e7e7", preview_url: "" },
+      { id: "4", title: "Ditto", artist: "NewJeans", image: "https://i.scdn.co/image/ab67616d0000b273b2e7e7e7e7e7e7e7e7e7e7e7", preview_url: "" },
+    ],
+    HipHop: [
+      { id: "5", title: "VVS", artist: "미란이, 머쉬베놈", image: "https://i.scdn.co/image/ab67616d0000b273b2e7e7e7e7e7e7e7e7e7e7e7", preview_url: "" },
+      { id: "6", title: "아무노래", artist: "지코", image: "https://i.scdn.co/image/ab67616d0000b273b2e7e7e7e7e7e7e7e7e7e7e7", preview_url: "" },
+    ],
+    Jazz: [
+      { id: "7", title: "Autumn Leaves", artist: "Bill Evans", image: "https://i.scdn.co/image/ab67616d0000b273b2e7e7e7e7e7e7e7e7e7e7e7", preview_url: "" },
+      { id: "8", title: "Take Five", artist: "Dave Brubeck", image: "https://i.scdn.co/image/ab67616d0000b273b2e7e7e7e7e7e7e7e7e7e7e7", preview_url: "" },
+    ],
   };
 
-    // 날씨별 추천 음악 리스트
-    const weatherMusicMap: Record<string, string[]> = {
-      Clear: ["여름 안에서", "Sunny Day", "Walking on Sunshine"],
-      Clouds: ["구름 위에서", "Cloudy Mood", "Grey Sky"],
-      Rain: ["비 오는 거리", "Rainy Day", "Raindrops Keep Fallin’"],
-      Snow: ["첫눈", "Snow Flower", "Let It Snow"],
-      Thunderstorm: ["천둥 번개", "Thunderstruck"],
-      Drizzle: ["이슬비", "Drizzle Song"],
-      Mist: ["안개 속에서", "Misty"],
-      Default: ["기분 좋은 노래", "Feel Good Song"]
-    };
+  // 날씨 상태/추천곡
+  const [weather, setWeather] = useState<string>(weatherProp ?? "Default");
+  const [tracks, setTracks] = useState<any[]>([]);
+  const [selectedTrack, setSelectedTrack] = useState<any | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [sdkReady, setSdkReady] = useState(false);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const playerRef = useRef<any>(null);
 
-    function getMusicByWeather(weather: string) {
-      return weatherMusicMap[weather] || weatherMusicMap["Default"];
+  // access_token 쿠키 파싱 함수 복구
+  function getCookie(name: string) {
+    if (typeof document === "undefined") return "";
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || "";
+    return "";
+  }
+
+
+
+  // Web Playback SDK 로드 및 플레이어 초기화
+  useEffect(() => {
+    const token = getCookie("spotify_access_token");
+    if (!token) {
+      console.log("No Spotify access token");
+      return;
     }
-
-    const [weather, setWeather] = useState<string>("");
-    const [musicList, setMusicList] = useState<string[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-
-    useEffect(() => {
-      setMounted(true);
-      if (typeof window !== "undefined" && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-          const { latitude, longitude } = pos.coords;
-          try {
-            const res = await axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/api/weather", {
-              params: { lat: latitude, lon: longitude }
-            });
-            const mainWeather = res.data.weather?.[0]?.main || "";
-            setWeather(mainWeather);
-            setMusicList(getMusicByWeather(mainWeather));
-          } catch (err) {
-            setWeather("");
-            setMusicList(weatherMusicMap["Default"]);
-          } finally {
-            setLoading(false);
-          }
-        }, () => {
-          setWeather("");
-          setMusicList(weatherMusicMap["Default"]);
-          setLoading(false);
+    loadSpotifySDK().then(() => {
+      console.log("Spotify SDK loaded");
+      setSdkReady(true);
+      if (!playerRef.current) {
+        playerRef.current = createSpotifyPlayer(token, (id: string) => {
+          console.log("Spotify Player ready, deviceId:", id);
+          setDeviceId(id);
         });
-      } else {
-        setWeather("");
-        setMusicList(weatherMusicMap["Default"]);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 날씨별 키워드 매핑 (원래대로)
+  const weatherKeywordMap: Record<string, string> = {
+    Clear: "맑음, 청량, 햇살, 여름, 밝은, sunny, clear sky, happy",
+    Rain: "비, 감성, 빗소리, rainy, rain",
+    Snow: "첫눈, 눈, 겨울, snow, winter",
+    Clouds: "흐림, 구름, 몽환, cloudy, cloud, soft, chill, 잔잔한",
+    Thunderstorm: "천둥, 강렬, 록, thunder, rock, energetic, 강한",
+    Drizzle: "이슬비, 잔잔, lo-fi, drizzle, lofi, chill, 부드러운",
+    Mist: "안개, 몽환, mist, dreamy, ambient, lofi, 새벽",
+    Default: "감성, 추천, 인기, pop, best, top"
+  };
+
+
+
+  useEffect(() => {
+    setMounted(true);
+    const w: string = weatherProp ?? "Default";
+    setWeather(w);
+    setLoading(true);
+    const fetchTracks = async () => {
+      try {
+        const keyword = weatherKeywordMap[w] || weatherKeywordMap["Default"];
+        const items = await searchSpotifyTracks(keyword);
+        setTracks(items);
+        // 항상 첫 곡을 대표곡으로 지정
+        setSelectedTrack(items && items.length > 0 ? items[0] : null);
+      } catch (e) {
+        setTracks([]);
+        setSelectedTrack(null);
+      } finally {
         setLoading(false);
       }
-    }, []);
+    };
+    fetchTracks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weatherProp]);
 
-  if (!mounted) {
-    return null;
+  // selectedTrack 변경 시 콘솔 출력 (디버깅용)
+  useEffect(() => {
+    if (selectedTrack) {
+      // eslint-disable-next-line no-console
+      console.log('selectedTrack', JSON.stringify(selectedTrack, null, 2));
+      console.log('deviceId', deviceId, 'sdkReady', sdkReady);
+    }
+  }, [selectedTrack, deviceId, sdkReady]);
+
+  // 재생 시간 상태 및 포맷 함수 (Hook 순서 오류 방지: 최상단에 위치)
+  const [currentTime, setCurrentTime] = useState(0);
+  function formatTime(sec: number) {
+    if (!sec || isNaN(sec)) return "00:00";
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
-  return (
-    <aside className="w-80 bg-[#f5ecd7] border-r border-[#d2b48c] flex flex-col items-center justify-center py-8 overflow-hidden">
-      {/* 앨범아트 영역 */}
-      <div className="w-56 h-56 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mb-8 border border-white/10">
-        <div className="w-32 h-32 bg-[#e2cfa7] rounded-md flex items-center justify-center shadow-lg">
-          {/* 앨범아트 아이콘 */}
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <circle cx="32" cy="32" r="28" fill="#222" />
-            <circle cx="32" cy="32" r="8" fill="#444" />
-            <circle cx="44" cy="20" r="4" fill="#444" />
-          </svg>
-        </div>
-      </div>
+  useEffect(() => {
+    if (!audio) {
+      setCurrentTime(0);
+      return;
+    }
+    const update = () => setCurrentTime(audio.currentTime);
+    audio.addEventListener('timeupdate', update);
+    return () => {
+      audio.removeEventListener('timeupdate', update);
+    };
+  }, [audio]);
 
-      {/* 곡 정보 및 안내문구 */}
-      <div className="flex flex-col items-center w-full px-4">
-        <div className="text-center mb-2">
-          <span className="text-lg font-bold text-[#7c5c3a]">재생목록</span>
-          <span className="text-lg font-bold text-[#bfa77a] ml-4">음악서랍</span>
-          <span className="text-lg font-bold text-[#bfa77a] ml-4">믹스업</span>
-        </div>
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <span className="text-xs text-[#bfa77a]">00:00</span>
-          <span className="text-xs text-[#d2b48c]">00:00</span>
-        </div>
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <button className="p-2 rounded-full bg-[#e2cfa7]/60 hover:bg-[#e2cfa7]/80">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
-          </button>
-          <button className="p-2 rounded-full bg-[#e2cfa7]/60 hover:bg-[#e2cfa7]/80">
-            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button className="p-2 rounded-full bg-[#e2cfa7]/60 hover:bg-[#e2cfa7]/80">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-        <div className="text-center mt-8 mb-4">
-          {selectedAlbum ? (
-            <>
-              <p className="text-[#7c5c3a] text-base mb-2">{selectedAlbum} 추천곡</p>
-              <ul className="text-[#bfa77a] text-sm mb-2">
-                {genreSongs[selectedAlbum]?.map((song, idx) => (
-                  <li key={idx}>• {song}</li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <>
-              <p className="text-[#7c5c3a] text-base mb-2">곡 목록이 없어요.</p>
-              <p className="text-[#bfa77a] text-sm">라디오에서 원하는 장르를 선택해보세요.</p>
-            </>
-          )}
-            {/* 날씨 기반 추천곡 영역 */}
-            <div className="mt-8 p-4 rounded-lg bg-[#e2cfa7]/30">
-              <h3 className="font-bold mb-2 text-[#7c5c3a]">오늘의 날씨 기반 추천곡</h3>
-              <ul className="list-disc pl-5 text-[#bfa77a]">
-                {musicList.map((song, idx) => (
-                  <li key={idx}>{song}</li>
-                ))}
-              </ul>
+  if (!mounted || loading) {
+    return <div className="w-80 flex items-center justify-center h-full">로딩 중...</div>;
+  }
+
+  return (
+    <aside className="w-80 bg-[#f5ecd7] border-r border-[#d2b48c] flex flex-col items-center py-8 overflow-hidden">
+      {/* 대표곡(플레이어 스타일) */}
+      {selectedTrack && (
+        <div className="w-56 rounded-2xl bg-gradient-to-b from-white to-[#f5ecd7] flex flex-col items-center justify-center mb-8 border border-[#e2cfa7] shadow-lg pt-6 pb-4 mt-8">
+          <div className="w-32 h-32 bg-[#e2cfa7] rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+            {selectedTrack.album?.images?.[0]?.url || selectedTrack.image ? (
+              <img src={selectedTrack.album?.images?.[0]?.url || selectedTrack.image} alt={selectedTrack.name || selectedTrack.title} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[#444] text-5xl">♪</div>
+            )}
+          </div>
+          <div className="text-center">
+            <div className="text-xl font-bold text-[#222] mb-1 truncate max-w-[180px]">{selectedTrack.name || selectedTrack.title}</div>
+            <div className="text-base text-[#7c5c3a] mb-2">{(selectedTrack.artists ? selectedTrack.artists[0]?.name : selectedTrack.artist) || ''}</div>
+            {/* 재생 컨트롤만 (시간 표시 제거) */}
+            <div className="flex flex-col items-center mt-2 gap-2">
+              <div className="flex items-center gap-6">
+                {/* 이전 트랙(비활성) */}
+                <button className="w-9 h-9 flex items-center justify-center rounded-full bg-[#222]/90 hover:bg-[#222] transition-all" disabled>
+                  <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path fill="#e2e2e2" d="M7 6v12l8.5-6z"/><rect x="5" y="6" width="2" height="12" rx="1" fill="#e2e2e2"/></svg>
+                </button>
+                {/* 재생/멈춤 */}
+                {selectedTrack.preview_url ? (
+                  <button
+                    className="w-12 h-12 flex items-center justify-center rounded-full bg-[#222]/90 hover:bg-[#222] transition-all shadow-lg"
+                    onClick={() => {
+                      if (audio) {
+                        audio.pause();
+                        setIsPlaying(false);
+                        setAudio(null);
+                      }
+                      if (!isPlaying) {
+                        const newAudio = new Audio(selectedTrack.preview_url);
+                        setAudio(newAudio);
+                        newAudio.play();
+                        setIsPlaying(true);
+                        newAudio.onended = () => setIsPlaying(false);
+                      }
+                    }}
+                  >
+                    {isPlaying ? (
+                      <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="#e2e2e2"/><rect x="14" y="5" width="4" height="14" rx="1" fill="#e2e2e2"/></svg>
+                    ) : (
+                      <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path fill="#e2e2e2" d="M8 5v14l11-7z"/></svg>
+                    )}
+                  </button>
+                ) : (
+                  sdkReady && deviceId && selectedTrack && typeof selectedTrack.uri === 'string' && selectedTrack.uri.length > 0 && (
+                    <button
+                      className="w-12 h-12 flex items-center justify-center rounded-full bg-[#222]/90 hover:bg-[#222] transition-all shadow-lg"
+                      onClick={async () => {
+                        const token = getCookie("spotify_access_token");
+                        await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+                          {
+                            method: "PUT",
+                            headers: {
+                              "Authorization": `Bearer ${token}`,
+                              "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ uris: [selectedTrack.uri] })
+                          });
+                      }}
+                    >
+                      <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path fill="#e2e2e2" d="M8 5v14l11-7z"/></svg>
+                    </button>
+                  )
+                )}
+                {/* 다음 트랙(비활성) */}
+                <button className="w-9 h-9 flex items-center justify-center rounded-full bg-[#222]/90 hover:bg-[#222] transition-all" disabled>
+                  <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path fill="#e2e2e2" d="M17 6v12l-8.5-6z"/><rect x="17" y="6" width="2" height="12" rx="1" fill="#e2e2e2"/></svg>
+                </button>
+              </div>
             </div>
+          </div>
         </div>
-   
+      )}
+      {/* 추천곡 리스트 (곡명-가수-미리듣기) */}
+      <div className="flex flex-col items-center w-full px-4">
+        <h3 className="font-bold mb-2 text-[#7c5c3a]">오늘의 날씨 기반 추천곡</h3>
+        {tracks.length === 0 ? (
+          <div className="text-gray-400 text-center py-8">Spotify에서 곡을 찾을 수 없습니다.</div>
+        ) : (
+          <ul className="w-full">
+            {tracks.slice(0, 5).map((track, idx) => (
+              <li key={track.id} className="flex items-center justify-between py-2 border-b cursor-pointer hover:bg-[#e2cfa7]/30 px-2 rounded"
+                onClick={() => setSelectedTrack(track)}>
+                <div>
+                  <div className="text-sm font-medium">{track.name || track.title}</div>
+                  <div className="text-xs text-gray-500">{(track.artists ? track.artists[0]?.name : track.artist) || ''}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </aside>
   );

@@ -104,7 +104,7 @@ export default function LoginPage() {
           onClick={() => {
             const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID || "9a0c19a7e9f24b069ecf7fc7945251a3";
             const redirectUri = encodeURIComponent("https://refringent-bioecological-keisha.ngrok-free.dev/api/auth/callback");
-            const scope = encodeURIComponent("playlist-read-private playlist-read-collaborative user-read-email user-read-private");
+            const scope = encodeURIComponent("playlist-read-private playlist-read-collaborative user-read-email user-read-private streaming user-read-playback-state user-modify-playback-state");
             const state = Math.random().toString(36).substring(2, 15);
             // state를 쿠키에 저장 (path=/, 세션 쿠키)
             document.cookie = `spotify_auth_state=${state}; path=/;`;
