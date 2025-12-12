@@ -40,7 +40,7 @@ export default function Sidebar() {
         navigator.geolocation.getCurrentPosition(async (pos) => {
           const { latitude, longitude } = pos.coords;
           try {
-            const res = await axios.get("http://localhost:3001/api/weather", {
+            const res = await axios.get("https://refringent-bioecological-keisha.ngrok-free.dev/api/weather", {
               params: { lat: latitude, lon: longitude }
             });
             const mainWeather = res.data.weather?.[0]?.main || "";
