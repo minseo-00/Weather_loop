@@ -1,3 +1,4 @@
+'use client';
 import "./globals.css";
 import { PlayerProvider } from "@/widgets/player-bar/context/PlayerProvider";
 
