@@ -16,10 +16,10 @@ const nextConfig: NextConfig = {
         source: '/auth/:path*',
         destination: 'http://127.0.0.1:3001/auth/:path*',
       },
-      // Proxy only the backend weather API so frontend /api/* routes remain served by Next.js
+      // 모든 /api/* 요청을 백엔드로 프록시
       {
-        source: '/api/weather',
-        destination: 'http://127.0.0.1:3001/api/weather',
+        source: '/api/:path*',
+        destination: 'http://127.0.0.1:3001/api/:path*',
       },
     ];
   },

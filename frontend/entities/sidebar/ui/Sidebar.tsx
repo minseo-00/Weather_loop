@@ -242,6 +242,18 @@ export default function Sidebar({ weather: weatherProp, isNight = false }: Sideb
   const getTrackName = (track: any) => track?.name || track?.title || "Unknown";
   const getArtistName = (track: any) => track?.artists?.[0]?.name || track?.artist || "Unknown";
   const getAlbumImage = (track: any) => track?.album?.images?.[0]?.url || track?.image || track?.albumImage || "";
+  // 앨범 이미지 URL을 최대한 보장하는 함수 (track 구조 다양성 대응)
+  const getSafeAlbumImage = (track: any) => {
+    if (track?.album?.images && Array.isArray(track.album.images) && track.album.images[0]?.url) {
+      return track.album.images[0].url;
+    }
+    if (track?.albumImage) return track.albumImage;
+    if (track?.image) return track.image;
+    if (track?.images && Array.isArray(track.images) && track.images[0]?.url) {
+      return track.images[0].url;
+    }
+    return "";
+  };
 
   // 이전 날씨/밤낮 상태 추적
   const [prevWeather, setPrevWeather] = useState<string | null>(null);
@@ -299,7 +311,7 @@ export default function Sidebar({ weather: weatherProp, isNight = false }: Sideb
     const fetchUserAndBookmarks = async () => {
       try {
         // 백엔드 URL (ngrok 사용)
-        const baseUrl = 'https://oversad-nikole-peatier.ngrok-free.dev';
+        const baseUrl = '';
         
         console.log('Fetching auth from:', `${baseUrl}/auth/me`);
         const res = await axios.get(`${baseUrl}/auth/me`, { withCredentials: true });
@@ -310,7 +322,7 @@ export default function Sidebar({ weather: weatherProp, isNight = false }: Sideb
           // 북마크 목록 가져오기
           console.log('Fetching bookmarks for:', res.data.user.user_id);
           const bookmarkRes = await axios.get(
-            `${baseUrl}/api/bookmark/list/${res.data.user.user_id}`,
+            `${baseUrl}/api/bookmark/list?user_id=${res.data.user.user_id}`,
             { withCredentials: true }
           );
           console.log('Bookmark result:', bookmarkRes.data);
@@ -330,7 +342,7 @@ export default function Sidebar({ weather: weatherProp, isNight = false }: Sideb
   }, [mounted]);
 
   // API 베이스 URL 헬퍼
-  const getBaseUrl = () => 'https://oversad-nikole-peatier.ngrok-free.dev';
+  const getBaseUrl = () => '';
 
   // 북마크 토글 함수
   const toggleBookmark = async (track: any, e: React.MouseEvent) => {
@@ -357,16 +369,25 @@ export default function Sidebar({ weather: weatherProp, isNight = false }: Sideb
           newSet.delete(spotifyId);
           return newSet;
         });
+        // 북마크 변경 이벤트 발생
+        window.dispatchEvent(new CustomEvent('bookmark-updated'));
       } else {
         // 북마크 추가
+        const albumImg = getSafeAlbumImage(track);
+        if (!albumImg) {
+          console.warn('[sidebar][경고] 북마크 추가 시 앨범 이미지 URL이 비어있음! track:', track);
+        } else {
+          console.log('[sidebar] 북마크 추가 img:', albumImg);
+        }
         await axios.post(`${baseUrl}/api/bookmark/add`, {
           user_id: userId,
-          spotify_id: spotifyId,
-          music_name: getTrackName(track),
-          artist: getArtistName(track),
-          preview_img: getAlbumImage(track)
+          music_id: track.id,
+          url: track.url || getTrackName(track),
+          img: albumImg // base64 인코딩 없이 원본 URL 그대로 저장
         }, { withCredentials: true });
         setBookmarks(prev => new Set(prev).add(spotifyId));
+        // 북마크 변경 이벤트 발생
+        window.dispatchEvent(new CustomEvent('bookmark-updated'));
       }
     } catch (error) {
       console.error("북마크 토글 실패:", error);

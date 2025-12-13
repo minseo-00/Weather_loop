@@ -33,7 +33,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("https://oversad-nikole-peatier.ngrok-free.dev/auth/me", { withCredentials: true });
+        const res = await axios.get("/auth/me", { withCredentials: true });
         if (res.data.user) {
           setUser(res.data.user);
         }
@@ -49,7 +49,7 @@ export default function SettingsPage() {
   // 로그아웃
   const handleLogout = async () => {
     try {
-      await axios.post("https://oversad-nikole-peatier.ngrok-free.dev/auth/logout", {}, { withCredentials: true });
+      await axios.post("/auth/logout", {}, { withCredentials: true });
       localStorage.removeItem("token");
       router.push("/login");
     } catch (err) {

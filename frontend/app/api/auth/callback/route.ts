@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
   const redirectUri = process.env.SPOTIFY_REDIRECT_URI
-
+  console.log('DEBUG CALLBACK ENV:', { clientId, clientSecret: !!clientSecret, redirectUri })
   if (!clientId || !clientSecret || !redirectUri) {
     return new NextResponse('Missing Spotify credentials', { status: 500 })
   }

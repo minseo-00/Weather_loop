@@ -3,13 +3,13 @@ import axios from "axios";
 const register = async () => {
   try {
     const res = await axios.post(
-      "https://oversad-nikole-peatier.ngrok-free.dev/auth/register",
+      "/auth/register",
       form,
       { withCredentials: true }
     );
     // 자동 로그인
     const loginRes = await axios.post(
-      "https://oversad-nikole-peatier.ngrok-free.dev/auth/login",
+      "/auth/login",
       {
         user_id: form.user_id,
         password: form.password
@@ -28,7 +28,7 @@ const register = async () => {
 const login = async () => {
   try {
     await axios.post(
-      "https://oversad-nikole-peatier.ngrok-free.dev/auth/login",
+      "/auth/login",
       {
         user_id: form.user_id,
         password: form.password
@@ -47,7 +47,7 @@ useEffect(() => {
   async function loadUser() {
     try {
       const res = await axios.get(
-        "https://oversad-nikole-peatier.ngrok-free.dev/auth/me",
+        "/auth/me",
         { withCredentials: true }
       );
       setUser(res.data.user);
@@ -61,7 +61,7 @@ useEffect(() => {
 // 로그아웃
 const logout = async () => {
   await axios.post(
-    "https://oversad-nikole-peatier.ngrok-free.dev/auth/logout",
+    "/auth/logout",
     {},
     { withCredentials: true }
   );

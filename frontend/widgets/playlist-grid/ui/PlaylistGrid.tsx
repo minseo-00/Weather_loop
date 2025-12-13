@@ -15,13 +15,21 @@ export default function PlaylistGrid() {
   const [loading, setLoading] = useState(true);
   const [tracks, setTracks] = useState<any[] | null>(null);
   const [openPlaylist, setOpenPlaylist] = useState<Playlist | null>(null);
+  type Track = {
+    id: string;
+    title: string;
+    artist: string;
+    preview_url?: string;
+    albumImage?: string;
+  };
+  
   const { playTrack } = usePlayer();
 
   useEffect(() => {
     let mounted = true;
     async function fetchPlaylists() {
       try {
-        const res = await fetch('https://oversad-nikole-peatier.ngrok-free.dev/api/spotify/playlists', { credentials: 'include' });
+        const res = await fetch('/api/spotify/playlists', { credentials: 'include' });
         if (!res.ok) {
           setPlaylists([]);
           setLoading(false);
@@ -53,7 +61,7 @@ export default function PlaylistGrid() {
             setOpenPlaylist(p);
             // fetch tracks
             try {
-              const res = await fetch(`https://oversad-nikole-peatier.ngrok-free.dev/api/spotify/playlists/${p.id}/tracks`, { credentials: 'include' });
+              const res = await fetch(`/api/spotify/playlists/${p.id}/tracks`, { credentials: 'include' });
               if (!res.ok) return setTracks([]);
               const json = await res.json();
               setTracks(json.items || []);
@@ -103,7 +111,7 @@ export default function PlaylistGrid() {
                         artist,
                         preview_url: tr.preview_url,
                         albumImage: tr.album?.images?.[0]?.url
-                      })}>
+                      } as Track)}>
                         ▶ 재생
                       </button>
                     </div>
