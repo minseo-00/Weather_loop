@@ -11,7 +11,8 @@ import authRouter from "./src/auth.js";
 import bookmarkRouter from "./src/bookmark.js";
 import dotenv from "dotenv";
 import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
+
+import diaryRouter from "./src/diary.js";
 
 dotenv.config();
 
@@ -41,8 +42,12 @@ app.get("/test-db", async (req, res) => {
 // 로그인/회원가입 라우터
 app.use("/auth", authRouter);
 
+
 // 북마크 API 라우터
 app.use("/api/bookmark", bookmarkRouter);
+
+// 다이어리 API 라우터
+app.use("/api/diary", diaryRouter);
 
 // 날씨 정보 API 엔드포인트
 app.get("/api/weather", async (req, res) => {
