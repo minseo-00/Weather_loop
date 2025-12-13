@@ -53,7 +53,6 @@ export default function LoginPage() {
           localStorage.setItem("token", res.data.token);
         }
         router.push("/main");
-        setTimeout(() => window.location.reload(), 300);
       }, 1000);
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.error) {
@@ -97,7 +96,7 @@ export default function LoginPage() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="이메일을 입력하세요"
+          placeholder="아이디를 입력하세요"
         />
         {/* 비밀번호 */}
         <Input
