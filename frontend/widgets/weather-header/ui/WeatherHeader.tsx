@@ -30,7 +30,7 @@ export default function WeatherHeader({ onWeatherChange, onTempChange, onNightCh
     let newWeather = "";
     let newTemp = 20;
     let newIcon = "";
-    
+    let newCity = "Daegu";
     if (type === "clear") {
       newWeather = "Clear";
       newIcon = isNight ? "01n" : "01d";
@@ -44,12 +44,11 @@ export default function WeatherHeader({ onWeatherChange, onTempChange, onNightCh
       newIcon = isNight ? "13n" : "13d";
       newTemp = isNight ? -5 : -2;
     }
-    
     setWeather(newWeather);
     setTemp(newTemp);
     setIcon(newIcon);
+    setCityName(newCity); // 버튼 클릭 시 cityName을 Daegu로 고정
     setDemoMenuOpen(null);
-    
     if (onWeatherChange) onWeatherChange(newWeather);
     if (onTempChange) onTempChange(newTemp);
     if (onNightChange) onNightChange(isNight);
@@ -68,9 +67,9 @@ export default function WeatherHeader({ onWeatherChange, onTempChange, onNightCh
 
   // 위치 기반 날씨 정보 가져오기 (10분마다 실시간 갱신)
   useEffect(() => {
-    // 대구 중심부 (중구/동성로) 기본 좌표
-    const DEFAULT_LAT = 35.8683;
-    const DEFAULT_LON = 128.5961;
+    // 대구 북구 기준 기본 좌표 (요청에 따라 수정)
+    const DEFAULT_LAT = 35.8968;
+    const DEFAULT_LON = 128.6195;
     let currentLat = DEFAULT_LAT;
     let currentLon = DEFAULT_LON;
     let intervalId: NodeJS.Timeout;
