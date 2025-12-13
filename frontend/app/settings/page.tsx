@@ -13,6 +13,65 @@ interface UserInfo {
   name?: string;
 }
 
+// 닉네임 인라인 수정 컴포넌트
+function NicknameEdit({ user, setUser }: { user: UserInfo, setUser: (u: UserInfo) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(user.nickname);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSave = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      // 닉네임 변경 API 호출 (PUT/PATCH)
+      await axios.put("/auth/me", { nickname: value }, { withCredentials: true });
+      // 변경 후 최신 정보 재조회
+      const res = await axios.get("/auth/me", { withCredentials: true });
+      if (res.data.user) setUser(res.data.user);
+      setEditing(false);
+    } catch (e) {
+      setError("닉네임 변경 실패");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!editing) {
+    return (
+      <div className="flex items-center gap-3">
+        <span className="text-gray-500">{user.nickname}</span>
+        <button
+          className="text-sm px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+          onClick={() => setEditing(true)}
+        >수정</button>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        className="px-2 py-1 border rounded-lg text-gray-700 w-32"
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        disabled={loading}
+        maxLength={20}
+      />
+      <button
+        className="text-sm px-2 py-1 rounded-lg border border-gray-300 text-blue-600 hover:bg-blue-50 transition"
+        onClick={handleSave}
+        disabled={loading || value.trim() === ""}
+      >저장</button>
+      <button
+        className="text-sm px-2 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-100 transition"
+        onClick={() => { setEditing(false); setValue(user.nickname); }}
+        disabled={loading}
+      >취소</button>
+      {error && <span className="text-xs text-red-500 ml-2">{error}</span>}
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserInfo | null>(null);
@@ -159,12 +218,7 @@ export default function SettingsPage() {
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-gray-200">
                       <span className="text-gray-800 font-medium">닉네임</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-gray-500">{user.nickname}</span>
-                        <button className="text-sm px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
-                          수정
-                        </button>
-                      </div>
+                      <NicknameEdit user={user} setUser={setUser} />
                     </div>
                     <div className="flex justify-between items-center py-3">
                       <span className="text-gray-800 font-medium">비밀번호</span>

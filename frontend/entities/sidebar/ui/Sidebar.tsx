@@ -10,6 +10,7 @@ interface SidebarProps {
   isNight?: boolean;
 }
 
+import VolumeControl from "./VolumeControl";
 // 북마크된 곡 ID를 저장하는 Set
 type BookmarkSet = Set<string>;
 
@@ -518,8 +519,8 @@ export default function Sidebar({ weather: weatherProp, isNight = false }: Sideb
             </svg>
           </button>
 
-          {/* 북마크 (하트) - 오른쪽에도 대칭으로 빈 공간 대신 플레이스홀더 */}
-          <div className="w-10 h-10"></div>
+          {/* 볼륨 컨트롤 */}
+          <VolumeControl />
         </div>
       </div>
 

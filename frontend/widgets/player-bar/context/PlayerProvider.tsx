@@ -93,6 +93,10 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
           console.log("Spotify player ready, device ID:", id);
         });
         playerRef.current = player;
+        // window에 할당하여 어디서든 접근 가능하게
+        if (typeof window !== 'undefined') {
+          window.spotifyPlayer = player;
+        }
 
         // 플레이어 상태 변경 리스너
         player.addListener('player_state_changed', (state: any) => {

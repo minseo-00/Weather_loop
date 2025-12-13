@@ -147,3 +147,43 @@ router.post("/axios-login", async (req, res) => {
 });
 
 export default router;
+
+
+// 닉네임 변경 (본인만 가능)
+router.put("/me", async (req, res) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ error: "인증 필요" });
+  let decoded;
+  try {
+    const secret = process.env.JWT_SECRET || "SECRET_KEY";
+    decoded = jwt.verify(token, secret);
+  } catch {
+    return res.status(401).json({ error: "토큰이 유효하지 않습니다." });
+  }
+
+  const user_id = decoded.user_id;
+  const { nickname } = req.body;
+  if (!nickname) return res.status(400).json({ error: "닉네임이 필요합니다." });
+
+  try {
+    await db.query(
+      "UPDATE userInfo SET nickname = ? WHERE user_id = ?",
+      [nickname, user_id]
+    );
+    // JWT 재발급(닉네임 갱신)
+    const newToken = jwt.sign(
+      { user_id, name: decoded.name, nickname },
+      process.env.JWT_SECRET || "SECRET_KEY",
+      { expiresIn: "1d" }
+    );
+    res.cookie("token", newToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+    res.json({ success: true, nickname });
+  } catch (err) {
+    console.error("닉네임 변경 에러:", err);
+    res.status(500).json({ error: "서버 오류" });
+  }
+});
