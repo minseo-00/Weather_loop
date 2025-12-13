@@ -174,6 +174,7 @@ export default function WeatherHeader({ onWeatherChange, onTempChange, onNightCh
     { name: "홈으로 가기", path: "/", show: true },
     { name: "마이페이지", path: "/favorites", show: isLoggedIn },
     { name: "로그인/회원가입", path: "/login", show: !isLoggedIn },
+    { name: "나만의 일기장", path: "/diary", show: isLoggedIn },
   ];
 
   return (
