@@ -35,7 +35,7 @@ export default function SignUpPage() {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const res = await axios.get("https://oversad-nikole-peatier.ngrok-free.dev/api/weather", {
+        const res = await axios.get("/api/weather", {
           params: { lat: 35.8683, lon: 128.5961 },
           withCredentials: true
         });
@@ -59,7 +59,7 @@ export default function SignUpPage() {
         latitude: form.latitude ?? 0,
         longitude: form.longitude ?? 0,
       };
-      const res = await axios.post("https://oversad-nikole-peatier.ngrok-free.dev/auth/register", payload, {
+      const res = await axios.post("/auth/register", payload, {
         withCredentials: true,
       });
       if (res.data.success) {

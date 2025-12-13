@@ -77,7 +77,7 @@ export default function WeatherHeader({ onWeatherChange, onTempChange, onNightCh
     let useDefaultName = false; // 위치 거부 시 "대구" 표시
 
     const fetchWeather = (lat: number, lon: number) => {
-      axios.get("https://oversad-nikole-peatier.ngrok-free.dev/api/weather", {
+      axios.get("/api/weather", {
         params: { lat, lon },
         withCredentials: true
       }).then(res => {
@@ -141,7 +141,7 @@ export default function WeatherHeader({ onWeatherChange, onTempChange, onNightCh
     // 1초마다 /auth/me로 로그인 상태 확인
     const checkLoginStatus = async () => {
       try {
-        const res = await axios.get("https://oversad-nikole-peatier.ngrok-free.dev/auth/me", { withCredentials: true });
+        const res = await axios.get("/auth/me", { withCredentials: true });
         setIsLoggedIn(!!res.data.user);
         console.log("WeatherHeader.tsx:23 로그인 상태:", !!res.data.user);
       } catch (err) {
@@ -157,7 +157,7 @@ export default function WeatherHeader({ onWeatherChange, onTempChange, onNightCh
   // 로그아웃
   const handleLogout = () => {
     localStorage.removeItem("token");
-    axios.post("https://oversad-nikole-peatier.ngrok-free.dev/auth/logout", {}, { withCredentials: true })
+    axios.post("/auth/logout", {}, { withCredentials: true })
       .then(() => {
         setIsLoggedIn(false);
         setMenuOpen(false);
@@ -165,7 +165,7 @@ export default function WeatherHeader({ onWeatherChange, onTempChange, onNightCh
       })
       .finally(() => {
         // 즉시 /auth/me 호출하여 UI 갱신
-        axios.get("https://oversad-nikole-peatier.ngrok-free.dev/auth/me", { withCredentials: true })
+        axios.get("/auth/me", { withCredentials: true })
           .then(res => setIsLoggedIn(!!res.data.user));
       });
   };

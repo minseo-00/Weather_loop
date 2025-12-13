@@ -1,17 +1,21 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { db } from "../db/connection.js";
 import axios from "axios";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
 const router = express.Router();
+router.use(cookieParser());
 
 router.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://oversad-nikole-peatier.ngrok-free.dev"
+      "https://refringent-bioecological-keisha.ngrok-free.dev"
     ],
     credentials: true,
   })
@@ -82,9 +86,10 @@ router.post("/login", async (req, res) => {
     [email]
   );
 
+  const secret = process.env.JWT_SECRET || "SECRET_KEY";
   const token = jwt.sign(
-    { user_id: user.user_id, nickname: user.nickname },
-    "SECRET_KEY",
+    { user_id: user.user_id, name: user.name, nickname: user.nickname }, // payload
+    secret,
     { expiresIn: "1d" }
   );
 
@@ -116,23 +121,21 @@ router.get("/me", (req, res) => {
   const token = req.cookies.token;
 
   if (!token) return res.json({ user: null });
-
   try {
-    const decoded = jwt.verify(token, "SECRET_KEY");
+    const secret = process.env.JWT_SECRET || "SECRET_KEY";
+    const decoded = jwt.verify(token, secret);
     res.json({ user: decoded });
   } catch {
     res.json({ user: null });
   }
 });
-
-
 // axios 예제
 
 router.post("/axios-login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const response = await axios.post("https://oversad-nikole-peatier.ngrok-free.dev/auth/login", { email, password }, {
+    const response = await axios.post("https://refringent-bioecological-keisha.ngrok-free.dev/auth/login", { email, password }, {
       withCredentials: true,
     });
 

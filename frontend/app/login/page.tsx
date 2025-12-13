@@ -29,7 +29,7 @@ export default function LoginPage() {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const res = await axios.get("https://oversad-nikole-peatier.ngrok-free.dev/api/weather", {
+        const res = await axios.get("/api/weather", {
           params: { lat: 35.8683, lon: 128.5961 },
           withCredentials: true
         });
@@ -44,8 +44,7 @@ export default function LoginPage() {
   const login = async () => {
     setError("");
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
-      const res = await axios.post(`${backendUrl}/auth/login`, { email, password }, {
+      const res = await axios.post(`/auth/login`, { email, password }, {
         withCredentials: true,
       });
       setSuccess(true);
@@ -128,8 +127,12 @@ export default function LoginPage() {
         {/* Spotify 로그인 버튼 */}
         <button
           onClick={() => {
-            const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID || "9a0c19a7e9f24b069ecf7fc7945251a3";
-            const redirectUri = encodeURIComponent(process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI || "http://localhost:3000/api/auth/callback");
+            const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
+            const redirectUri = encodeURIComponent(process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI ?? "");
+            if (!clientId || !redirectUri) {
+              alert('환경변수(NEXT_PUBLIC_SPOTIFY_CLIENT_ID, NEXT_PUBLIC_SPOTIFY_REDIRECT_URI)가 올바르게 설정되어 있지 않습니다.');
+              return;
+            }
             const scope = encodeURIComponent("playlist-read-private playlist-read-collaborative user-read-email user-read-private streaming user-read-playback-state user-modify-playback-state");
             const state = Math.random().toString(36).substring(2, 15);
             document.cookie = `spotify_auth_state=${state}; path=/; SameSite=Lax; Secure`;
